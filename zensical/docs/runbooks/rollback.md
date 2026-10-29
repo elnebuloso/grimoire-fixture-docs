@@ -65,6 +65,22 @@ Finally, block the broken version from being deployed again by marking it with
 unblocks it with a reason, which keeps an automated pipeline or a colleague who missed the message
 from putting the broken version back into production while the cause is still being investigated.
 
+Check the dependent services next. A rollback of `auth-service` can leave services that cached
+tokens from the broken version with tokens the previous version does not accept; their replicas
+log `token rejected` and recover only when the cache expires. Restart the replicas of every
+service that logs this message with `platformctl restart --service <name>` instead of waiting for
+the cache, which can take up to an hour and keeps the incident open for no reason.
+
+Hand over before you leave. If your shift ends while the incident is still open, tell the next
+on-call engineer which version is running, which version is blocked and which checks are still
+outstanding. Write the same in the incident record, so the handover does not depend on a message
+in a channel that scrolls away during a busy morning.
+
+Close your part of the rollback with a short summary in the `#platform-ops` channel: the service,
+the versions, the time production was stable again and the link to the incident record. The team
+that owns the service picks the investigation up from there, and the summary is the message they
+start from when they plan the fixed release.
+
 ## After a rollback
 
 The team that owns the service investigates the broken version and fixes it in a new release. The
