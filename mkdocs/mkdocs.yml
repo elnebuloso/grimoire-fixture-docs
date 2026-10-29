@@ -1,0 +1,13 @@
+site_name: Billing
+nav:
+  - Home: index.md
+  - Invoices: invoices.md
+# notes/oncall.md is left out of nav on purpose: it sorts after the nav pages.
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - toc:
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
