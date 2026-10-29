@@ -1,0 +1,4 @@
+| Service | Port |
+|---|---|
+| `auth-service` | 8443 |
+| `billing-api` | 8080 |

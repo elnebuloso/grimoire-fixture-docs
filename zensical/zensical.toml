@@ -1,0 +1,13 @@
+[project]
+site_name = "Platform"
+nav = [
+  { "Home" = "index.md" },
+  { "Auth service" = "auth-service.md" },
+  { "Runbooks" = [
+    { "Rolling back a deploy" = "runbooks/rollback.md" },
+  ] },
+]
+# glossary.md is left out of nav on purpose: it sorts after the nav pages.
+
+[project.markdown_extensions.toc]
+separator = "_"
