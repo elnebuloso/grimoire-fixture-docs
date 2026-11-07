@@ -111,3 +111,20 @@ Dead links:
 | `invoices.md` | `payment-provider-outages` | `refunds.md` | missing page |
 | `invoices.md` | `payment-provider-outages` | `invoices.md#late-fees` | missing anchor |
 | `invoices.md` | `payment-provider-outages` | `../shared/caution.md` | leaves the source path |
+
+## `vendor/`: documentation that is not ours
+
+Copies of four public documentations at a fixed commit, for grimoire's benchmark: the same input on
+every run, whatever happens upstream. Each folder has the upstream license and a `VENDOR.md` with
+the upstream repository, the commit, what was copied and what was changed.
+
+| Folder | Source path for grimoire | Pages | Generator |
+|---|---|---|---|
+| `vendor/kubernetes` | `vendor/kubernetes/content/en` | 2,520 | Hugo |
+| `vendor/mkdocs-material` | `vendor/mkdocs-material/docs` | 85 | MkDocs |
+| `vendor/fastapi` | `vendor/fastapi/docs/en/docs` | 156 | MkDocs |
+| `vendor/zensical` | `vendor/zensical/docs` | 57 | Zensical |
+
+The folders are updated only on purpose, as a whole, with a new commit in their `VENDOR.md`; the
+benchmark's baseline changes with them. The sources of the agent environment above do not read
+`vendor/`.
