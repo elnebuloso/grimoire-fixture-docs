@@ -1,0 +1,34 @@
+---
+title: E-Mail-Marketing Aktionen
+description: Arbeitsflüsse in E-Mail-Marketing automatisieren.
+kind: howto
+section: true
+prev: ./mass_mailing
+partner: Mint System
+---
+
+# E-Mail-Marketing Aktionen
+
+![icons_odoo_mass_mailing](attachments/icons_odoo_mass_mailing.png)
+
+{{ $frontmatter.description }}
+
+## Aktionen
+
+### Anzeigen Unsubscribe URL
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+- **Name**: `Anzeigen Unsubscribe URL`
+- **Modell**: `mailing.trace`
+- **Typ**: `Code ausführen`
+- **Code**:
+
+```python
+url = record.mass_mailing_id._get_unsubscribe_url(record.email, 0)
+raise Warning(url)
+```
+
+Die Aktion mit dem Knopf _Kontextuelle Aktion erstellen_ bestätigen und dann speichern.
+
+In der Formularansicht der Mailing-Statistiken wählen Sie _Aktionen > Anzeigen Unsubscribe URL_.

@@ -1,0 +1,75 @@
+---
+title: Automatisierte Vertragslaufzeit Verlängerung
+description: Der Vertrag eines Mandanten hat das letzte Kündigungsdatum überschritten und soll verlängert werden.
+icon:
+status:
+lang: de
+---
+# Automatisierte Vertragslaufzeit Verlängerung
+
+!!! info "Wurde zuletzt getestet für i-doit version 23"
+
+**Use-Case:**
+Der Vertrag eines Mandanten hat das letzte Kündigungsdatum überschritten und soll verlängert werden.<br>
+Um den Vertrag zu verlängern, machen wir uns den Befehl `extend-contracts` zu nutze.
+
+## Schritt 1: Den Vertrag `extend-contract` fähig machen
+
+Damit ein Vertrag mit dem Befehl `extend-contracts` verlängert werden kann, muss er ein paar Voraussetzungen erfüllen.<br>
+Dafür müssen wir den bestehenden Vertrag erst mal editieren.<br>
+
+Die benötigten Einstellungen finden wir in der Objektansicht des gewünschten Vertrags,
+
+**Vertrag → Vertragsinformationen**
+
+[![vertragsverlängerung-info](../assets/images/de/anwendungsfaelle/automatisierte-vertragsverlaengerung/1-avv-uc.png)](../assets/images/de/anwendungsfaelle/automatisierte-vertragsverlaengerung/1-avv-uc.png)
+
+welche wir anschließend editieren:
+
+* **Vertragslaufzeitperiode** stellen wir auf *1 Jahr*
+* **Vertragsende durch** stellen wir auf *Kündigung*
+* **Kündigungsdatum** bleibt leer
+* **Kündigungsfrist** stellen wir auf *1 Monat* und *zum Vertragsende*
+
+[![vertragsverlängerung-config](../assets/images/de/anwendungsfaelle/automatisierte-vertragsverlaengerung/2-avv-uc.png)](../assets/images/de/anwendungsfaelle/automatisierte-vertragsverlaengerung/2-avv-uc.png)
+
+!!! info "Die Voraussetzungen um den Befehl ausführen zu können lauten wie folgt:"
+
+    * **Vertragslaufzeitperiode** muss ausgefüllt sein
+    * **Vertragsende durch** muss auf Kündigung gestellt sein
+    * **Kündigungsdatum** muss leer sein
+    * **Kündigungsfrist** muss in der Vergangenheit liegen (der gleiche Tag wie Heute geht nicht!)
+
+## Schritt 2: `extend-contracts` anwenden
+
+Um den Befehl `extend-contracts` anwenden zu können, müssen wir in die [Console](../automatisierung-und-integration/cli/index.md).
+
+Der Befehl sieht wie folgt aus:
+
+```shell
+    sudo -u www-data php console.php extend-contracts --user user --password password
+```
+
+Ist der Vertrag richtig konfiguriert, wird in der [Console](../automatisierung-und-integration/cli/index.md) angezeigt, dass der Vertrag um 1 Jahr verlängert wurde.
+
+[![vertragsverlängerung-console](../assets/images/de/anwendungsfaelle/automatisierte-vertragsverlaengerung/3-avv-uc.png)](../assets/images/de/anwendungsfaelle/automatisierte-vertragsverlaengerung/3-avv-uc.png)
+
+## Schritt 3: Automatisieren
+
+Da wir nicht jeden Tag per Hand den Befehl ausführen wollen, erstellen wir nun einen **Cronjob**.
+Zuerst erstellen wir einen neuen Cronjob:
+
+```shell
+    sudo nano /etc/cron.d/idoit-extend-contracts
+```
+
+In diesen Cronjob fügen wir folgenden Code ein:
+
+```shell
+    ## idoit cronjob idoit-extend-contracts
+
+    15 6 * * * www-data php /var/www/html/console.php extend-contracts --user user --password password
+```
+
+Mit diesem Code, wird der Cronjob jeden Tag um 6:15 Uhr ausgeführt und verlängert die Verträge automatisch, falls sie den Voraussetzungen entsprechen.<br>
+Der Pfad zur [Console](../automatisierung-und-integration/cli/index.md) muss vollständig angegeben werden und der **Username** und das **Passwort** des Benutzer der i-doit Instanz.

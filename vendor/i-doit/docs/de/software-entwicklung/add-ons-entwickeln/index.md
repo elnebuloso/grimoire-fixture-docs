@@ -1,0 +1,92 @@
+---
+title: "Add-ons entwickeln"
+description: "Add-ons sind eigenstaendige Applikationsteile, die den Funktionsumfang von i-doit erweitern."
+icon:
+status:
+lang: de
+---
+# Add-ons entwickeln
+
+Add-ons sind eigenständige Applikationsteile, die den Funktionsumfang von i-doit erweitern. Sie sind nur innerhalb von i-doit lauffähig und müssen eine bestimmte Architektur aufweisen, um sich in das System einzugliedern.
+
+In diesem Artikel erfährst du, welche i-doit-Komponenten du via Add-on erweitern kannst und was dafür nötig ist.
+
+Um ein Add-on zu entwickeln, benötigst du:
+
+1. Add-on-Identifier (in diesem Artikel verwenden wir "synetics_example")
+2. Minimales Set an PHP-Dateien
+3. package.json
+
+## Der Add-on-Identifier
+
+Ein Add-on wird über einen eindeutigen String identifiziert. Dieser muss kurz, praegnant und kleingeschrieben sein. Die i-doit GmbH prüft die Eindeutigkeit vor der Veröffentlichung. Folgende Regeln gelten:
+
+*   Prefix mit Firmenname oder Namen (idealerweise bis zu 8 Zeichen)
+*   Unikat
+*   Kleingeschrieben
+*   Keine Sonderzeichen (nur a-z, 0-9 und Unterstriche)
+*   Maximal 32 Zeichen
+*   Muss mit Buchstaben beginnen
+
+Valide Beispiele dafür wären z.B. acme_api, synetics_reporting oder auch andere Kürzel, wie lfischer_gameit.
+
+Nicht erlaubte Identifier sind: api (existiert bereits) und my-ÄddOn (Bindestrich, Umlaut und Großbuchstaben sind nicht erlaubt).
+
+Der Add-on-Identifier kann auch mit dem folgenden regulären Ausdruck beschrieben / getestet werden: [a-z][a-z0-9_]{0,7}_[a-z0-9_]{1,23}
+
+Der Identifier findet sich an vielen Stellen des Add-on-Quellcodes wieder:
+
+*   Der Add-on-Ordner muss gleich benannt sein.
+*   Die Add-on-Klasse (Code und Dateiname) beinhaltet den Identifier: isys_module_synetics_example
+*   Der Namespace muss den Identifier beinhalten, damit der PSR-4-Autoloader funktioniert: \idoit\Module\SyneticsExample
+*   Der Autoloader für Klassen (Code und Dateiname) der Legacy-Struktur muss den Identifier beinhalten: isys_module_synetics_example_autoload
+
+## Minimales Set an PHP-Dateien
+
+Um ein lauffähiges Add-on zu entwickeln, sind einige PHP-Dateien notwendig:
+
+1. init.php
+2. isys_module_synetics_example.class.php
+3. isys_module_synetics_example_autoload.class.php (optional, nur notwendig falls PHP Klassen in der Legacy-Struktur existieren)
+4. Sprachdateien (optional)
+
+Initialisierung des Add-ons mit Hilfe der init.php
+----------------------------------------------------
+
+Die init.php ist die Datei, die vom i-doit-System aufgerufen wird, um ein Add-on zu initialisieren. Üblicherweise wird diese dazu verwendet, Konstanten, Autoloader und Events zu definieren bzw. registrieren. Weitere Informationen sind auf der Seite [Bootstrapping eines Add-ons (init.php)](./boostraping-eines-add-ons.md) zu finden.
+
+Basis Add-on-Klasse isys_module_synetics_example.class.php
+------------------------------------------------------------
+
+In der Add-on-Basis Klasse werden u.a. Definitionen für die Darstellung des Add-ons hinterlegt. Das wird über die Konstante DISPLAY_IN_MAIN_MENU geregelt. Ist diese auf den boolschen Wert "true" gesetzt, wird das Add-on im Extras-Menü dargestellt. Darüber hinaus gibt es die Konstante MAIN_MENU_REWRITE_LINK, die genutzt werden kann, um die Art der URL zu definieren:
+
+Ist MAIN_MENU_REWRITE_LINK auf false gesetzt, wird die URL in etwa so aussehen: <https://i-doit.int/?moduleID=><module-id\>
+
+Ist MAIN_MENU_REWRITE_LINK auf true gesetzt, sieht die URL dagegen in etwa so aus: <https://i-doit.int/synetics_example>
+
+Zusätzlich zur init.php muss die öffentliche Methode "init" definiert sein:
+
+    public function init(isys_module_request $p_req)
+    {
+        return $this;
+    }
+
+Diese Methode kann verwendet werden, um klassen-interne Daten vorzubereiten. In der Regel wird sie aber nicht mehr eingesetzt, da die Add-ons eine MVC-Architektur nutzen, die nicht auf die Basis Klasse zurückgreift.
+
+Wenn das Add-on eigene Berechtigungen für das i-doit-Rechtesystem mitbringen soll, muss die Basis Klasse das idoit\AddOn\AuthableInterface Interface implementieren und entsprechend die öffentlich-statische Methode getAuth ausprägen:
+
+    public static function getAuth()
+    {
+        return isys_auth_synetics_example::instance();
+    }
+
+Doch mehr hierzu im Artikel [Benutzerrechte im Add-on nutzen](./benutzerrechte-im-add-on-nutzen.md).
+
+Die package.json\-Datei
+-------------------------
+
+Wie auch andere Tools, definieren wir bestimmte Attribute oder Metadaten eines Add-ons in einer speziellen Datei - der package.json. Der Aufbau und Inhalt dieser Datei ist im Artikel [Metadaten eines Add-ons (package.json)](./metadaten-eines-add-ons.md) ausführlich beschrieben.
+
+## Eigene Systemeinstellungen
+
+Ein Add-on kann die Einstellungen für [Mandanten-Name] unter **Verwaltung → Einstellungen für [Mandanten-Name]** nutzen und auch selbst erweitern. Weitere Informationen zu Datentypen, Art der Einstellung usw. sind im Artikel [Systemeinstellungen erweitern](./systemeinstellungen-erweitern.md) dokumentiert.

@@ -1,0 +1,107 @@
+---
+description: Software verkaufen und lizenzieren
+extensions: true
+forge: github.com
+kind: howto
+name: license
+partner: Mint System
+prev: ./
+repo: Mint-System/Odoo-Apps-Vertical-SaaS
+title: Lizenz
+versions:
+  - '18.0'
+  - '16.0'
+---
+
+
+# Lizenz
+
+![odoo_icons_license](attachments/odoo_icons_license.png)
+
+{{ $frontmatter.description }}
+
+Technischer Name: {{ $frontmatter.name }}\
+Repository: <a v-bind:href="`https://${$frontmatter.forge}/${$frontmatter.repo}/tree/${$frontmatter.versions[0]}/${$frontmatter.name}`">https://{{ $frontmatter.forge }}/{{ $frontmatter.repo }}/tree/{{ $frontmatter.versions[0] }}/{{ $frontmatter.name }}</a>
+
+## Erweiterungen
+
+| Erweiterung                                                   | Beschreibung                                                    |
+| ------------------------------------------------------------- | --------------------------------------------------------------- |
+| [License OCAD Mail](License%20OCAD%20Mail.md)                 | Mail-Vorlagen für die Aktivierung von Lizenzen.                 |
+| [License OCAD](License%20OCAD.md)                             | Synchronisation Lizenzen mit dem OCAD Lizenzaktivierungsdienst. |
+| [License Partner Comission](License%20Partner%20Comission.md) | Integration mit Reseller-Funktion von Odoo.                     |
+| [License Portal](License%20Portal.md)                         | Kundenportal zur Lizenzverwaltung.                              |
+| [License Sale](License%20Sale.md)                             | Lizenz aus Verkaufsauftrag generieren.                          |
+| [License Subscription](License%20Subscription.md)             | Lizenzen mit Abonnementen erneuern.                             |
+| [License Website Sale](License%20Website%20Sale.md)           | Im Webshop gekaufte Lizenzen aktivieren.                        |
+
+## Beschreibung
+
+```mermaid
+flowchart TD
+	A[Draft] -->|action_assign| B(Assigned)
+	B -->|action_draft| A
+	B -->|action_activate| C(Active)
+	C -->|action_reset| B
+	C -->|action_disable| D(Disabled)
+	D -->|action_enable| C
+	C -->|action_cancel| E(Cancelled)
+	D -->|action_cancel| E
+	E -->|action_draft| A
+```
+
+## Konfiguration
+
+### Lizenztyp erfassen
+
+Navigieren Sie nach _Lizenz > Konfigurationen > Lizenztyp_ und erstellen Sie einen neuen Eintrag. Den _Lizenztyp_ können Sie Lizenzen und Lizenzprodukten zuordnen.
+
+## Verwendung
+
+### Lizenz erstellen
+
+Zeigen Sie _Lizenzen_ an und erstellen Sie einen neuen Eintrag. Wählen Sie einen _Partner_ aus und speichern Sie den neuen Eintrag. Es wird ein Lizenzname und ein Schlüssel generiert.
+
+!!! tip
+    Sie können auch einen benutzerdefinierten Lizenznamen und Schlüssel vergeben.
+
+
+## Aktionen
+
+### Lizenz abbrechen
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+Name der Aktion: `Lizenz abbrechen`\
+Modell: `license.license`\
+Typ: `Code ausführen`
+
+Kopieren Sie die folgenden Zeilen in das Feld _Python Code_:
+
+```python
+for rec in records:
+  rec.action_cancel()
+```
+
+Die Aktion mit dem Knopf _Kontextuelle Aktion erstellen_ bestätigen und dann speichern.
+
+In der Liste der Lizenzen können Sie die Einträge markieren und _Aktionen > Lizenz abbrechen_ auswählen.
+
+### Lizenz aktivieren
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+Name der Aktion: `Lizenz aktivieren`\
+Modell: `license.license`\
+Typ: `Code ausführen`
+
+Kopieren Sie die folgenden Zeilen in das Feld _Python Code_:
+
+```python
+for rec in records:
+  rec.action_activate()
+```
+
+Die Aktion mit dem Knopf _Kontextuelle Aktion erstellen_ bestätigen und dann speichern.
+
+In der Liste der Lizenzen können Sie die Einträge markieren und _Aktionen > Lizenz aktivieren_ auswählen.

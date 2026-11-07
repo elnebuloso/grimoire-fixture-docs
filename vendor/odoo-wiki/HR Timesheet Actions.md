@@ -1,0 +1,79 @@
+---
+title: Zeiterfassung Aktionen
+description: Arbeitsflüsse in der Zeiterfassung automatisieren.
+kind: howto
+section: true
+prev: ./hr-timesheet
+partner: Mint System
+---
+
+# Zeiterfassung Aktionen
+
+![icons_odoo_hr_timesheet](attachments/icons_odoo_hr_timesheet.png)
+
+## Aktionen
+
+### Zeiterfassung aufteilen
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+- **Name**: `Zeiterfassung aufteilen`
+- **Modell**: `account.analytic.line`
+- **Typ**: `Code ausführen`
+- **Code**:
+
+```python
+for rec in records:
+    original_amount = rec.unit_amount
+    new_timesheet = rec.copy()
+    rec.write({'unit_amount': original_amount / 2.0})
+    new_timesheet.write({'unit_amount': original_amount / 2.0})
+```
+
+Die Aktion mit dem Knopf _Kontextuelle Aktion erstellen_ bestätigen und speichern.
+
+
+### Auftragselement von Aufgabe entfernen
+
+_Gilt ab <Badge type="info" text="Odoo14" vertical="middle" />._
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+- **Name**: `Auftragselement von Aufgabe entfernen`
+- **Modell**: `account.analytic.line`
+- **Typ**: `Code ausführen`
+- **Code**:
+
+```python
+for record in records:
+	record.task_id.write({'sale_line_id': False})
+```
+
+Die Aktion mit dem Knopf _Kontextuelle Aktion erstellen_ bestätigen und dann speichern.
+
+In der Ansicht von Kostenstellen-Buchungen erscheint nun in der Auswahl _Aktion_ das Menu _Validierung zurücksetzen_.
+
+### Validierung zurücksetzen
+
+_Benötigt bis <Badge type="info" text="Odoo18" vertical="middle" />._
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+- **Name**: `Validierung zurücksetzen`
+- **Modell**: `account.analytic.line`
+- **Typ**: `Code ausführen`
+- **Code**:
+
+```python
+records.write({'validated': False})
+```
+
+Die Aktion mit dem Knopf _Kontextuelle Aktion erstellen_ bestätigen und dann speichern.
+
+In der Ansicht von Kostenstellen-Buchungen erscheint nun in der Auswahl _Aktion_ das Menu _Validierung zurücksetzen_.
+
+## Geplante Aktionen
+
+### Zeiterfassung: E-Mail-Erinnerung an Mitarbeiter
+
+#TODO

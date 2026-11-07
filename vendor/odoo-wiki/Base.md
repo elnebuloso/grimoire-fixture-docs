@@ -1,0 +1,75 @@
+---
+title: Server
+description: Odoo installieren und konfigurieren.
+kind: howto
+prev: ./
+partner: Odoo S.A.
+extensions: true
+---
+
+# Server
+
+![icons_odoo_website_enterprise](attachments/icons_odoo_website_enterprise.png)
+
+{{ $frontmatter.description }}
+
+## Erweiterungen
+
+| Erweiterung                                                                 | Beschreibung                                                         |     |     |
+| --------------------------------------------------------------------------- | -------------------------------------------------------------------- | --- | --- |
+| [Base Action Manager Access](Base%20Action%20Manager%20Access.md)           | Zugriff auf Aktionen für Gruppe Administration / Zugriffsrechte.     |     |     |
+| [Base Attachment Object Store](Base%20Attachment%20Object%20Store.md)       | Speicherung von Anhängen auf externen Dateisystemen.                 |     |     |
+| [Base Module User ACL](Base%20Module%20User%20ACL.md)                       | Zugriffsrechte auf Apps festlegen.                                   |     |     |
+| [Base Optional Quick Create](Base%20Optional%20Quick%20Create.md)           | Quick Create Option für Datenmodelle deaktivieren.                   |     |     |
+| [Base Recursion Limit](Base%20Recursion%20Limit.md)                         | Limit für Python-Rekursionen erhöhen.                                |     |     |
+| [Base User ACL](Base%20User%20ACL.md)                                       | Basis für Zugriffsrechte-Module.                                     |     |     |
+| [Change auto installable modules](Change%20auto%20installable%20modules.md) | Auto-Installation für ausgewählte Module deaktivieren.               |     |     |
+| [Fetchmail Incoming Log](Fetchmail%20Incoming%20Log.md)                     | Loggt Informationen zu eingehenden E-Mails.                          |     |     |
+| [Fs Folder WebDAV](Fs%20Folder%20WebDAV.md)                                 | Verbindung mit externen WebDav-Speicher.                             |     |     |
+| [IR Attachment Edit](IR%20Attachment%20Edit.md)                             | Bearbeitung von Ressourcen Model und ID auf Dateianhang erlauben.    |     |     |
+| [Mail Format With Parent](Mail%20Format%20With%20Parent.md)                 | Unternehmensname des Kontakts alternativ in E-Mails verwenden.       |     |     |
+| [Mail Manual Routing](Mail%20Manual%20Routing.md)                           | Erlaubt Zuordnung von empfangenen E-Mails.                           |     |     |
+| [Mail Server Filter Model](Mail%20Server%20Filter%20Model.md)               | Beschränkt E-Mail-Versand auf explizit erlaubte Modelle.             |     |     |
+| [Mail Server Filter](Mail%20Server%20Filter.md)                             | Eingehende und ausgehende Mail-Server anhand Datenbanknamen filtern. |     |     |
+| [Mail Service Users](Mail%20Service%20Users.md)                             | Service-Benutzer von Lizenzvertrag ausschliessen.                    |     |     |
+| [Module Auto Update](Module%20Auto%20Update.md)                             | Aktualisiert automatisch neue Versionen von Odoo Modulen.            |     |     |
+
+## Infrastruktur
+
+### Mail-Account bereitstellen
+
+Odoo benötigt zum Empfang und Versand von E-Mails einen exklusiven Mail-Account. Im Normalfall lautet die Mail Adresse `odoo@example.com`, wobei `example.com` mit der Domain des Kunden zu ersetzen ist.
+
+**Aliase**
+
+Damit Antworten an E-Mails von Odoo korrekt verarbeitet werden können, müssen Mail-Aliase konfiguriert werden. Erstellen Sie die folgenden Mail-Aliase für `odoo@example.com`:
+
+- `reply@example.com` Zum sammeln von Antworten
+- `invoice@example.com` Zum Empfang von Rechnungen
+- `support@example.com` Zum Empfang von Support-Anfragen
+- `contact@example.com` Zum Empfang von Leads
+
+Wenn jemand eine Mail an eine dieser Adresse schickt, werden Sie ans Postfach von `odoo@example.com` weitergeleitet und anschliessen von Odoo verarbeitet.
+
+### DNS-Einträge erstellen
+
+Odoo ist eine Webapplikation und muss über eine bestimmte Adresse im Browser aufgerufen werden. Wir empfehlen als Adresse für die produktive Umgebung `odoo.example.com` festzulegen und für die Testumgebung `odoo-dev.example.com`. `example.com` ist natürlich mit der Domain des Kunden zu ersetzen.
+
+Damit die Adresse korrekt aufgelöst wird, müssen DNS-Einträge erstellt werden. Angenommen es wird ein Server unter der Adresse `server1.example.org` bereitgestellt, müssen diese DNS-Einträge erstellt werden:
+
+```
+odoo.example.com ALIAS server1.example.org
+odoo-dev.example.com ALIAS server1.example.org
+```
+
+Alternativ können auch Einträge vom Typ CNAME statt ALIAS erstellt werden.
+
+### DNS-Auflösung prüfen
+
+Wenn Sie prüfen möchten mit welcher IP-Adresse ein DNS-Eintrag aufgelöst wird, können Sie das mit dem Kommandozeilenwerkzeug `nslookup` prüfen.
+
+Drücken Sie <kbd>Windows</kbd> + <kbd>R</kbd> und geben Sie `cmd` ein. Tippen Sie den Befehl mit dem entsprechenden DNS-Namen ein: `nslookup odoo.example.com`
+
+![](attachments/cmd%20nslookup.png)
+
+Als Antwort erhalten Sie die IP-Adresse vom Server, Router oder Firewall.

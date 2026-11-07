@@ -1,0 +1,22 @@
+---
+title: Website Berichte
+description: Verkaufszahlen analysieren.
+kind: howto
+section: true
+prev: ./website
+partner: Mint System
+---
+
+# Website Berichte
+
+![](attachments/icons_odoo_website_sale.png)
+
+{{ $frontmatter.description }}
+
+## Berichte
+
+### Verkaufszahlen auswerten
+
+Zeigen Sie _Website > Berichtswesen > Online-Verkäufe_ an und filtern Sie die Pivot-Ansicht gemäss ihren Anforderungen. Dazu ein Beispiel der meistverkauften Produkte:
+
+![](attachments/Website%20Berichte.png)

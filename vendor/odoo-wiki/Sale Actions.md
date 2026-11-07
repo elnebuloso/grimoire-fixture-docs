@@ -1,0 +1,476 @@
+---
+title: Verkauf Aktionen
+description: Arbeitsflüsse im Verkauf automatisieren.
+kind: howto
+section: true
+prev: ./sale
+partner: Mint System
+---
+
+# Verkauf Aktionen
+
+![icons_odoo_sale](attachments/icons_odoo_sale.png)
+
+{{ $frontmatter.description }}
+
+## Aktionen
+
+### Auf Erledigt setzen
+
+Gilt bis <Badge type="info" text="Odoo16" vertical="middle" />.
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+- **Name**: `Auf Erledigt setzen`
+- **Modell**: `sale.order`
+- **Typ**: `Code ausführen`
+- **Code**:
+
+```python
+for record in records:
+	record.write({
+	  'state': 'done'
+	})
+```
+
+Die Aktion mit dem Knopf _Kontextuelle Aktion erstellen_ bestätigen und speichern.
+
+### Auftrag sperren
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+- **Name**: `Auftrag sperren`
+- **Modell**: `sale.order`
+- **Typ**: `Code ausführen`
+- **Code**:
+
+```python
+for record in records:
+	record.write({
+	  'locked': True
+	})
+```
+
+Die Aktion mit dem Knopf _Kontextuelle Aktion erstellen_ bestätigen und dann speichern.
+
+### Als Anzahlung markieren
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+- **Name**: `Als Anzahlung markieren`
+- **Modell**: `sale.order.line`
+- **Typ**: `Code ausführen`
+- **Code**:
+
+```python
+for rec in records:
+  rec.update({'is_downpayment': True })
+```
+
+### Auf Angebot setzen
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+- **Name**: `Auf Angebot setzen`
+- **Modell**: `sale.order`
+- **Typ**: `Code ausführen`
+- **Code**:
+
+```python
+for rec in records:
+  rec.with_context({'disable_cancel_warning': True}).action_cancel()
+  rec.action_draft()
+```
+
+Die Aktion mit dem Knopf _Kontextuelle Aktion erstellen_ bestätigen und dann speichern.
+
+### Angebot bestätigen
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+- **Name**: `Angebot bestätigen`
+- **Modell**: `sale.order`
+- **Typ**: `Code ausführen`
+- **Code**:
+
+```python
+for rec in records:
+  # rec.write({'state': 'sale'})
+  rec.action_confirm()
+```
+
+Die Aktion mit dem Knopf _Kontextuelle Aktion erstellen_ bestätigen und dann speichern.
+
+### Verkaufsauftrag abbrechen
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+- **Name**: `Verkaufsauftrag abbrechen`
+- **Modell**: `sale.order`
+- **Typ**: `Code ausführen`
+- **Code**:
+
+```python
+for rec in records:
+  rec.set_close()
+  rec.action_cancel()
+```
+
+Die Aktion mit dem Knopf _Kontextuelle Aktion erstellen_ bestätigen und dann speichern.
+
+### Verkaufsauftrag bestätigen und Rechnung erstellen
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+- **Name**: `Verkaufsauftrag bestätigen`
+- **Modell**: `sale.order`
+- **Typ**: `Code ausführen`
+- **Code**:
+
+```python
+for rec in records:
+  rec.action_confirm()
+  rec._create_invoices()
+```
+
+Die Aktion mit dem Knopf _Kontextuelle Aktion erstellen_ bestätigen und dann speichern.
+
+In der Liste der Verkaufsaufträge können Sie die Einträge markieren und _Aktionen > Verkaufsauftrag bestätigen_ auswählen.
+
+### Verkaufsauftrag abbrechen
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+- **Name**: `Verkaufsauftrag abbrechen`
+- **Modell**: `sale.order`
+- **Typ**: `Code ausführen`
+- **Code**:
+
+```python
+for rec in records:
+  rec.set_close()
+  rec.with_context({'disable_cancel_warning': True}).action_cancel()
+```
+
+Die Aktion mit dem Knopf _Kontextuelle Aktion erstellen_ bestätigen und dann speichern.
+
+In der Liste der Verkaufsaufträge können Sie die Einträge markieren und _Aktionen > Verkaufsauftrag abbrechen_ auswählen.
+
+### Beschaffung starten
+
+Mit dieser Serveraktion können Sie die Beschaffungsregeln auf den Autragszeilen für einen Verkaufsauftrag manuell auslösen.
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+- **Name**: `Beschaffung starten`
+- **Modell**: `sale.order`
+- **Typ**: `Code ausführen`
+- **Code**:
+
+```python
+for rec in records:
+  rec.order_line._action_launch_stock_rule()
+```
+
+Die Aktion mit dem Knopf _Kontextuelle Aktion erstellen_ bestätigen und dann speichern.
+
+### Steuersätze aktualisieren
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+- **Name**: `Steuersätze aktualisieren`
+- **Modell**: `sale.order`
+- **Typ**: `Code ausführen`
+- **Code**:
+
+```python
+for line in records.order_line:
+	line._compute_tax_id()
+```
+
+Die Aktion mit dem Knopf _Kontextuelle Aktion erstellen_ bestätigen und dann speichern.
+
+### Markieren der Offerte als gesendet
+
+Das ist eine Standard-Serveraktion von Odoo. Der Status "Angebot gesendet" wird nur gesetzt, wenn Dialog zum Versand aufgerufen werden. Mit dieser Aktion können Sie den Status explizit setzen.
+
+### Verkaufsbeschreibung in Verkaufszeilen kopieren
+
+Mit dieser Serveraktion kann die Verkaufsbeschreibung  eines Produktes in die entsprechende Verkaufszeile des Verkaufsauftrags kopiert werden. Dies kann nötig sein, wenn die Verkaufsbeschreibung  eines Produktes geändert wird, da Odoo nicht automatisch die Änderung in einen bestehenden Verkausauftrag  übernimmt.
+
+- **Name**: `Verkaufsbeschreibung in Verkaufszeilen kopieren`
+- **Modell**: `sale.order`
+- **Typ**: `Code ausführen`
+- **Code**:
+
+```python
+for order in records:
+    for line in order.order_line:
+        if line.product_id:
+            line.write({
+                'name': line._get_sale_order_line_multiline_description_sale()
+            })
+```
+
+
+## Geplante Aktionen
+
+### Verkaufsaufträge nach Invervall abrechnen
+
+Diese geplante Aktion erstellt die Rechnungen der zu abzurechnenden Verkaufsaufträge und berücksichtigt dabei [Sale Invoice Frequency](Sale%20Invoice%20Frequency.md).
+
+Navigieren Sie nach _Einstellungen > Technisch > Automatisierungsregeln_ und erstellen Sie einen neuen Eintrag:
+
+- **Name**: `Verkaufsaufträge nach Invervall abrechnen`
+- **Modell**: `ir.actions.server`
+- **Ausführen alle**: `1` Woche
+- **Nächstes Ausführungsdatum**: `DD.MM.YYYY 02:00:00`
+- **Anzahl der Anrufe**: `-1`
+- **Typ**: `Code ausführen`
+- **Code**:
+
+```python
+# Settings
+post_invoices = True
+print_invoices = True
+invoice_report = env.ref('account.account_invoices')
+
+# Calculate start and end of weekly period.
+today = datetime.datetime.now().date()
+frequency_weekly_id = env.ref('sale_invoice_frequency.sale_invoice_frequency_weekly')
+last_week_start = datetime.datetime.combine(today - datetime.timedelta(days=today.weekday() + 7), datetime.datetime.min.time())
+last_week_end = datetime.datetime.combine(last_week_start + datetime.timedelta(days=6), datetime.datetime.max.time())
+# raise UserError([last_week_start, last_week_end])
+
+# Invoice sale orders of last week
+invoiced_order_names = []
+order_last_week_groups = env['sale.order']._read_group(
+  domain=[
+    ('joboffer_id','!=',False),
+    # ('date_order', '>=', last_week_start),
+    ('date_order', '<=', last_week_end),
+    ('invoice_status','=','to invoice'),
+    ('invoice_frequency_id','=',frequency_weekly_id.id)
+  ],
+  fields=['partner_invoice_id'],
+  groupby=['partner_invoice_id']
+)
+# raise UserError([order_last_week_groups])
+try:
+  for group in order_last_week_groups:
+    domain = group.get('__domain')
+    orders = env['sale.order'].search(domain).sorted(lambda o: o.joboffer_id.ref)
+    orders._create_invoices()
+    orders.invoice_ids.write({'to_check': True})
+    if post_invoices:
+      orders.invoice_ids.action_post()
+    if print_invoices:
+      env['ir.actions.report']._render_qweb_pdf(invoice_report, res_ids=orders.invoice_ids.ids)
+    invoiced_order_names += orders.mapped('name')
+    log('Created invoices for: ' + ', '.join(orders.mapped('name')))
+    env.cr.commit()
+except Exception as err:
+  message = 'The invoicing of weekly sale orders failed, the following error occured: ' + str(err)
+  log(message, level='error')
+  env['mail.mail'].create({
+    'subject': 'Error in weekly sale order invoicing',
+    'body_html': message,
+    'email_to': 'admin@example.com',
+  }).send()
+message = 'The sale orders of last week have been invoiced: ' + ', '.join(invoiced_order_names) if invoiced_order_names else 'No weekly sale orders have been invoiced'
+log(message)
+
+# Calculate start and end of montly period.
+today = datetime.datetime.now().date()
+frequency_monthly_id = env.ref('sale_invoice_frequency.sale_invoice_frequency_monthly')
+first_day_of_this_month = today.replace(day=1)
+last_month_end = first_day_of_this_month - datetime.timedelta(days=1)
+last_month_start = last_month_end.replace(day=1)
+# raise UserError([last_month_start, last_month_end])
+
+# Invoice sale orders of last month
+invoiced_order_names = []
+order_last_month_groups = env['sale.order']._read_group(
+  domain=[
+    ('joboffer_id','!=',False),
+    # ('date_order', '>=', last_month_start),
+    ('date_order', '<=', last_month_end),
+    ('invoice_status','=','to invoice'),
+    ('invoice_frequency_id','=',frequency_monthly_id.id)
+  ],
+  fields=['partner_invoice_id'],
+  groupby=['partner_invoice_id']
+)
+# raise UserError([order_last_month_groups])
+try:
+  for group in order_last_month_groups:
+    domain = group.get('__domain')
+    orders = env['sale.order'].search(domain).sorted(lambda o: o.joboffer_id.ref)
+    orders._create_invoices()
+    orders.invoice_ids.write({'to_check': True})
+    if post_invoices:
+      orders.invoice_ids.action_post()
+    if print_invoices:
+      env['ir.actions.report']._render_qweb_pdf(invoice_report, res_ids=orders.invoice_ids.ids)
+    invoiced_order_names += orders.mapped('name')
+    log('Created invoices for: ' + ', '.join(orders.mapped('name')))
+    env.cr.commit()
+except Exception as err:
+  message = 'The invoicing of monthly sale orders failed, the following error occured: ' + str(err)
+  log(message, level='error')
+  env['mail.mail'].create({
+    'subject': 'Error in monthly sale order invoicing',
+    'body_html': message,
+    'email_to': 'admin@example.com',
+  }).send()
+message = 'The sale orders of last month have been invoiced: ' + ', '.join(invoiced_order_names) if invoiced_order_names else 'No monthly sale orders have been invoiced'
+log(message)
+
+# action = {
+# 	'type': 'ir.actions.client',
+# 	'tag': 'display_notification',
+# 	'params': {
+# 		'type': 'success',
+# 		'message': message,
+# 		'sticky': True
+# 	}
+# }
+```
+
+## Automatisierungsregeln
+
+### Angebot bestätigen und Rechnungen erstellen
+
+Mit dieser automatischen Aktion wird ein Angebot mit einem bestimmten Attribut (Beispiel: `x_as4import`) automatisch bestätigt. Rechnungen werden erstellt und ebenfalls bestätigt.
+
+Erstellen Sie unter _Einstellungen > Technisch > Automation > Automatisierungsregeln_ einen Eintrag mit diesen Werten:
+
+- **Name**: `Angebot bestätigen und Rechnungen erstellen`
+- **Modell**: `sale.order`
+- **Auslöser**: Bei Erstellung und Bearbeitung
+- **Trigger-Felder**: `x_as4import`
+- **Domain vor Aktualisierung**: `[("x_as4import", "!=", True)]`
+- **Anzuwenden auf**: `[("x_as4import", "=", True)]`
+- **Code**:
+
+```python
+records.action_confirm()
+records._compute_amounts()
+records._create_invoices()
+for invoice in records.invoice_ids:
+  invoice.action_post()
+```
+
+### Follower auf Angebot entfernen
+
+- **Name**: `Follower auf Angebot entfernen`
+- **Modell**: `sale.order`
+- **Auslöser**: Bei Erstellung und Bearbeitung
+- **Code**:
+
+```python
+for rec in records:
+  allow_ids = rec.team_id.member_ids.partner_id
+  unsubscribe_ids = rec.message_partner_ids.filtered(lambda p: p not in allow_ids)
+  if unsubscribe_ids:
+    rec.message_unsubscribe(unsubscribe_ids.ids)
+```
+
+### Angebot bestätigen
+
+Erstellen Sie unter _Einstellungen > Technisch > Automation > Automatisierungsregeln_ einen Eintrag mit diesen Werten:
+
+- **Name**: `Angebot bestätigen`
+- **Modell**: `sale.order`
+- **Auslöser**: Beim Aktualisieren
+- **Trigger-Felder**: `x_as4import`
+- **Domain vor Aktualisierung**: `[("x_as4import", "!=", True)]`
+- **Anzuwenden auf**: `[("x_as4import", "=", True)]`
+- **Code**:
+
+```python
+records.action_confirm()
+records._compute_amounts()
+```
+
+### Rechnung erstellen
+
+Erstellen Sie unter _Einstellungen > Technisch > Automation > Automatisierungsregeln_ einen Eintrag mit diesen Werten:
+
+- **Name**: `Rechnung erstellen`
+- **Modell**: `sale.order`
+- **Auslöser**: Beim Aktualisieren
+- **Trigger-Felder**: `x_as4import`
+- **Domain vor Aktualisierung**: `[("invoice_status", "!=", "invoiced")]`
+- **Anzuwenden auf**: `["&", ("x_as4import", "=", True), ("invoice_status", "=", "to invoice")]`
+- **Code**:
+
+```python
+records._create_invoices()
+for invoice in records.invoice_ids:
+  if invoice.state != 'posted':
+    invoice.action_post()
+records._compute_invoice_status()
+```
+
+### Standard-Zahlungsbedingungen festlegen
+
+Erstellen Sie unter _Einstellungen > Technisch > Automation > Automatisierungsregeln_ einen Eintrag mit diesen Werten:
+
+- **Name**: `Standard-Zahlungsbedingungen festlegen`
+- **Modell**: `sale.order`
+- **Auslöser**: Bei Erstellung
+- **Anzuwenden auf**: `[("payment_term_id", "=", False)]`
+- **Folgeaktion**: Den Datensatz aktualisieren
+- **Zu schreibende Daten**:
+
+| Feld              | Bewertungstyp | Datensatz |
+| ----------------- | ------------- | --------- |
+| `payment_term_id` | Referenz      | 30 Tage   |
+
+### Verkäufer entfernen
+
+Erstellen Sie unter _Einstellungen > Technisch > Automation > Automatisierungsregeln_ einen Eintrag mit diesen Werten:
+
+- **Name**: `Verkäufer entfernen`
+- **Modell**: `sale.order`
+- **Auslöser**: Bei Erstellung und Bearbeitung
+- **Anzuwenden auf**: `[("user_id", "!=", False)]`
+- **Folgeaktion**: Den Datensatz aktualisieren
+- **Zu schreibende Daten**:
+
+| Feld      | Bewertungstyp     | Wert    |
+| --------- | ----------------- | ------- |
+| `user_id` | Python Expression | `False` |
+
+### Standard-Verkaufsteam festlegen
+
+Erstellen Sie unter _Einstellungen > Technisch > Automation > Automatisierungsregeln_ einen Eintrag mit diesen Werten:
+
+- **Name**: `Standard-Verkaufsteam festlegen`
+- **Modell**: `sale.order`
+- **Auslöser**: Bei Erstellung und Bearbeitung
+- **Auslöser**: -Feld**: `recurrence_id`
+- **Anzuwenden auf**: `[("recurrence_id", "!=", False)]`
+- **Folgeaktion**: Den Datensatz aktualisieren
+- **Zu schreibende Daten**:
+
+| Feld      | Bewertungstyp | Datensatz        |
+| --------- | ------------- | ---------------- |
+| `team_id` | Referenz      | Mitgliedschaften |
+
+### Provision bei Erneuerung entfernen
+
+Erstellen Sie unter _Einstellungen > Technisch > Automation > Automatisierungsregeln_ einen Eintrag mit diesen Werten:
+
+- **Name**: `Provision bei Erneuerung entfernen`
+- **Modell**: `sale.order`
+- **Auslöser**: Bei Erstellung
+- **Anzuwenden auf**: `[("subscription_id", "!=", False)]`
+- **Folgeaktion**: Den Datensatz aktualisieren
+- **Zu schreibende Daten**:
+
+| Feld                     | Bewertungstyp     | Wert    |
+| ------------------------ | ----------------- | ------- |
+| `commission_plan_frozen` | Python Expression | `True`  |
+| `commission_plan_id`     | Python Expression | `False` |

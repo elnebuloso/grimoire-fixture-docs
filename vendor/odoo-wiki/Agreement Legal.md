@@ -1,0 +1,87 @@
+---
+description: Verträge und und Vorlage für Rechtsabteilung.
+forge: github.com
+kind: howto
+name: agreement_legal
+partner: OCA
+prev: ./documents
+repo: OCA/agreement
+title: Agreement Legal
+versions:
+  - '18.0'
+  - '17.0'
+  - '16.0'
+  - '15.0'
+---
+
+# Agreement Legal
+
+![](attachments/icon_oca_agreement.png)
+
+{{ $frontmatter.description }}
+
+Technischer Name: {{ $frontmatter.name }}\
+Repository: <a v-bind:href="`https://${$frontmatter.forge}/${$frontmatter.repo}/tree/${$frontmatter.versions[0]}/${$frontmatter.name}`">https://{{ $frontmatter.forge }}/{{ $frontmatter.repo }}/tree/{{ $frontmatter.versions[0] }}/{{ $frontmatter.name }}</a>\
+Runboat: <a v-bind:href="`https://runboat.odoo-community.org/builds?repo=${$frontmatter.repo}`">https://runboat.odoo-community.org/builds?repo={{ $frontmatter.repo }}</a>
+
+## Verwendung
+
+### Vereinbarungstyp verwalten
+
+Navigieren Sie nach _Agreements > Configuration > Agreement Types_. Hier können sie bestehende Vereinbarungstyp bearbeiten oder neue erstellen.
+
+### Unter-Vereinbarungstyp erstellen
+
+Die Vereinbarungstypen können weiter in Untergruppen gegliedert werden. Navigieren Sie nach _Agreements > Configuration > Agreement Types_, wählen sie einen Eintrag aus und erfassen sie in der Tabelle _Sub-Type Name_ die Untergruppen.
+
+### Vorlage für Vereinbarung erstellen
+
+Navigieren Sie nach _Agreements > Configuration > Templates_ und klicken sie auf _Neu_. Geben Sie Informationen zur Vereinbarungsvorlage ein und beenden sie den Vorgang mit Speichern.
+
+### Vereinbarung erstellen
+
+Basierend auf einer Vorlage können Sie eine Vereinbarung erstellen. Öffnen sie die _Agreements_ App und klicken Sie auf _Neu_. Wählen Sie die Vorlage aus und geben sie einen Namen an. Anschliessend wählen Sie den Vertragspartner aus und geben ein Start- und Enddatum ein.
+
+### Unterschriebene Vereinbarung hochladen
+
+Öffnen sie die _Agreements_ App und wählen Sie eine bestehende Vereinbarung. Bearbeiten Sie die Vereinbarung und laden sie das unterschriebene Dokument im Tab _Signatures_ hoch.
+
+### Aktive Vereinbarungen anzeigen und filtern
+
+Über die Ansicht _Agreements > Operations > Agreements_ sehen sie alle aktiven Vereinbarungen. Hier können Sie suchen und filtern.
+
+### Neue Version von Vereinbarung erstellen
+
+Öffnen sie die _Agreements_ App und wählen Sie eine bestehende Vereinbarung. Klicken Sie auf _New Version_. Nun wird die bestehende Vereinbarung dupliziert und im Tab _Revisions_ wird die alte Version verknüpft.
+
+### Stufen der Vereinbarungen anpassen
+
+Um die Stufen der Vereinbarungen anzupassen, wählen Sie _Agreements > Configuration > Stages_. Hier können sie bestehende Stufen anpassen, löschen oder neue erstellen.
+
+## Berechtigungen
+
+### Berechtigungen anhand Agreement Type filtern
+
+Im folgenden Beispiel werden die abrufbaren Verträge anhand des _Agreement Type_ gefiltert. Für Mitglieder der Gruppe _Agreement IT_ sind nur Verträge mit der Type Bezeichnung _IT_ sichtbar. Die Gruppe erstellen Sie unter _Einstellungen > Benutzer und Unternehmen > Gruppen_.
+
+![](attachments/Agreement%20Legal%20Permission.png)
+
+### Berechtigungen anhand Benutzer und Gruppen filtern
+
+Haben Sie das Feld `x_user_ids` und `x_group_ids` auf dem Datenmodell _Agreement_ zur Verfügung können Sie den Zugriff auf die Objekte damit filtern.
+
+Legen Sie auf dem Datenmodell diese _Datensatzregeln_ fest:
+
+**Name**: Agreement Gruppen\
+**Gruppen**: Interne Benutzer\
+**Domain**: `[('x_group_ids', 'in', [g.id for g in user.groups_id])]`
+
+**Name**: Agreement Benutzer\
+**Gruppen**: Interne Benutzer\
+**Domain**: `[('x_user_ids','=',user.id)]`
+
+![](attachments/Agreement%20Legal%20Berechtigungen.png)
+
+Auf dem Agreement können Sie über die Felder _Benutzer_ und _Gruppen_ zusätzliche Zugriffe regeln.
+
+![](attachments/Agreement%20Legal%20Guppen%20und%20Benutzer.png)

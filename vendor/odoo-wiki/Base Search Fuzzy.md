@@ -1,0 +1,108 @@
+---
+description: Aktivieren Trigram-Index auf Datenbank-Felder.
+forge: github.com
+kind: howto
+name: base_search_fuzzy
+partner: OCA
+prev: ./database
+repo: OCA/server-tools
+title: Base Search Fuzzy
+versions:
+  - '19.0'
+  - '18.0'
+  - '17.0'
+  - '16.0'
+  - '15.0'
+  - '14.0'
+---
+
+
+# Base Search Fuzzy
+
+![icon_oca_app](attachments/icon_oca_app.png)
+
+{{ $frontmatter.description }}
+
+Technischer Name: {{ $frontmatter.name }}\
+Repository: <a v-bind:href="`https://${$frontmatter.forge}/${$frontmatter.repo}/tree/${$frontmatter.versions[0]}/${$frontmatter.name}`">https://{{ $frontmatter.forge }}/{{ $frontmatter.repo }}/tree/{{ $frontmatter.versions[0] }}/{{ $frontmatter.name }}</a>
+
+## Verwendung
+
+Mit der Trigramm-Indexierung können Sie sog. _Fuzzy Search_ ausführen.
+
+### Trigram-Indexierung für ausgewähltes Feld aktivieren
+
+Navigieren Sie nach _Einstellungen > Technisch > Datenbankstruktur > Trigram Index_ und erstellen Sie einen neuen Eintrag:
+
+- **Feld**: Wählen Sie das Feld aus für welches ein Trigram-Index erstellt werden soll.
+- **Index Name**: Wird automatisch vergeben.
+- **Index Typ**: Wählen Sie den Index-Typ aus.
+
+## Entwicklung
+
+### Prüfen ob `pg_trgm`-Erweiterung installiert ist
+
+Führen Sie den folgenden SQL-Befehl auf der Odoo-Datenbank aus:
+
+```sql
+SELECT * FROM pg_extension WHERE extname = 'pg_trgm';
+```
+
+Wenn die Erweiterung installier ist, erhalten Sie diesen Output:
+
+```
+  oid   | extname | extowner | extnamespace | extrelocatable | extversion | extconfig | extcondition
+--------+---------+----------+--------------+----------------+------------+-----------+--------------
+ 861553 | pg_trgm |       10 |         2200 | t              | 1.6        |           |
+(1 row)
+```
+
+### Trigram-Index für Kontaktnamen erstellen
+
+Legen Sie gemäss [Trigram-Indexierung für ausgewähltes Feld aktivieren](#Trigram-Indexierung%20für%20ausgewähltes%20Feld%20aktivieren) einen Index mit diesen Werten an:
+
+- **Feld**: `display_name (res.partner)`
+- **Index Typ**: GIN
+
+### Suchfilter anpassen
+
+Damit eine _Fuzzy Search_ funktioniert muss auf der Suchmaske der Suchfilter angepasst werden. Statt den Operator `ilike`, gibt es neu den Operator `%`. Mit einer _Fuzzy Search_ werden Suchergebnisse zuverlässiger gefiltert. Hier ein Beispiel mit einem Rechtschreibefehler:
+
+![](attachments/Base%20Search%20Fuzzy.png)
+
+### Kontakt Anzeigename indexieren
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+Name der Aktion: `Kontakt Anzeigename indexieren`\
+Modell: `server.actions`\
+Typ: `Code ausführen`
+
+Kopieren Sie die folgenden Zeilen in das Feld _Python Code_:
+
+```python
+env.cr.execute("REINDEX INDEX display_name_gin_idx;")
+env.cr.commit()
+```
+
+### Kontakt Such-Query analysieren
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+Name der Aktion: `Kontakt Such-Query analyisieren`\
+Modell: `server.actions`\
+Typ: `Code ausführen`
+
+Kopieren Sie die folgenden Zeilen in das Feld _Python Code_:
+
+```python
+env.cr.execute("""
+SELECT id, name, email, similarity(name, 'Raul Ferra') AS score
+FROM res_partner
+WHERE similarity(name, 'Raul Ferra') > 0.3
+ORDER BY score DESC;
+""")
+result = env.cr.fetchall()
+
+raise UserError("\n".join([f"ID: {row[0]}, Name: {row[1]}, Email: {row[2]}, Score: {row[3]}" for row in result]))
+```

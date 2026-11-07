@@ -1,0 +1,188 @@
+---
+title: Einkauf
+description: Verbessern Sie die Leistung Ihrer Lieferkette und Ihres Bestands.
+kind: howto
+prev: ./
+partner: Odoo S.A.
+extensions: true
+---
+
+# Einkauf
+
+![icons_odoo_purchase](attachments/icons_odoo_purchase.png)
+
+{{ $frontmatter.description }}
+
+Website: <https://www.odoo.com/de_DE/app/purchase>
+
+## Bereiche
+
+| Bereich                                   | Beschreibung                             |
+| ----------------------------------------- | ---------------------------------------- |
+| [Einkauf Aktionen](Purchase%20Actions.md) | Arbeitsflüsse in Einkauf automatisieren. |
+
+## Erweiterungen
+
+| Erweiterung                                                                                         | Beschreibung                                                                              |
+| --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [Product Supplierinfo Update From Invoice](Product%20Supplierinfo%20Update%20From%20Invoice.md)     | Aktualisiert Lieferantenpreis von Rechnung.                                               |
+| [Purchase Blanket Order Sequence on Create](Purchase%20Blanket%20Order%20Sequence%20on%20Create.md) | Namen des Rahmenvertrags beim Abspeichern festlegen gemäss Sequenz                        |
+| [Purchase Order Comment](Purchase%20Order%20Comment.md)                                             | Kommentar-Feld für Einkaufsaufträge.                                                      |
+| [Purchase Order Line Date](Purchase%20Order%20Line%20Date.md)                                       | Lieferdatum im Wareneingang automatisch nachtragen.                                       |
+| [Purchase Order Line Description](Purchase%20Order%20Line%20Description.md)                         | Nur die Einkaufsbeschreibung in die Einkaufsposition übernehmen.                          |
+| [Purchase Order Line Position](Purchase%20Order%20Line%20Position.md)                               | Einkaufsaufträge mit Positionsnummern.                                                    |
+| [Purchase Order Line Price Default](Purchase%20Order%20Line%20Price%20Default.md)                   | Standardpreis einer Einkaufsposition überschreiben.                                       |
+| [Purchase Order Line Relay Price](Purchase%20Order%20Line%20Relay%20Price.md)                       | Kalkuliert den besten Preis für alle Bestellpositionen und benachrichtigt den Verkäufter. |
+| [Purchase Order Notes](Purchase%20Order%20Notes.md)                                                 | Einkaufsaufträge mit Notizfelder.                                                         |
+| [Purchase Order Owner](Purchase%20Order%20Owner.md)                                                 | Besitzer für Bestellungen festlegen.                                                      |
+| [Purchase Order Partner Incoterm](Purchase%20Order%20Partner%20Incoterm.md)                         | Für jedem Partner die Incoterms festlegen.                                                |
+| [Purchase Order Partner Shipping](Purchase%20Order%20Partner%20Shipping.md)                         | Alternative Lieferadresse für Bestellungen.                                               |
+| [Purchase Order Subscription](Purchase%20Order%20Subscription.md)                                   | Wiederkehrende Bestellungen verwalten.                                                    |
+| [Purchase Order Type](Purchase%20Order%20Type.md)                                                   | Bestellungen nach Typen organisieren.                                                     |
+| [Purchase Order Validate](Purchase%20Order%20Validate.md)                                           | Bestellung vor Versenden oder Bestätigen überprüfen.                                      |
+| [Purchase Partner Incoterm](Purchase%20Partner%20Incoterm.md)                                       | Standardlieferbedingungen für Lieferanten.                                                |
+| [Purchase Requisition Sequence On Create](Purchase%20Requisition%20Sequence%20On%20Create.md)       | Namen des Rahmenvertrags beim Abspeichern festlegen gemäss Sequenz                        |
+| [Purchase Sale Order Analytic Account](Purchase%20Sale%20Order%20Analytic%20Account.md)             | Kostenstelle von verlinkten Verkaufsauftrag auf Bestellung übertragen.                    |
+| [Purchase Stock Sale Owner](Purchase%20Stock%20Sale%20Owner.md)                                     | Eigentümer auf Wareneingang aus Verkaufsauftrag zuordnen.                                 |
+| [Purchase Tags](Purchase%20Tags.md)                                                                 | Einkaufsbestellungen mit Stichwörter.                                                     |
+| [Purchase order lines with discounts](Purchase%20order%20lines%20with%20discounts.md)               | Rabatte auf Einkaufspositionen festlegen.                                                 |
+
+## Produkte
+
+### Standard-Steuern für Einkauf auf Produkt festlegen
+
+Öffnen Sie ein Produkt _Einkauf > Produkte > Produkte_ und zeigen Sie den Tab _Einkauf_. Legen Sie im Feld _Steuern (Einkauf)_ die Standard-Steuern fest.
+
+Unterschiedliche Steuern der einzelnen Line-Items werden im Formular und im Bericht gruppiert dargestellt (ab Version 15). Die Zuordnung erfolgt über die _Steuergruppe_ gemäss dem Feld _Steuergruppe_ im Tab _Erweiterte Optionen_.
+
+### Lieferant auf Produkt hinzufügen
+
+Öffnen Sie ein Produkt _Einkauf > Produkte > Produkte_ und zeigen Sie den Tab _Einkauf_. Fügen Sie der Lieferanten-Liste einen neuen Eintag hinzu. Wählen Sie den Lieferant aus und legen Details wie _Preis_ und _Tage bis Lieferung_ fest.
+
+## Aufträge
+
+### Angebotsanfrage erstellen
+
+Über _Neu_ wird eine Angebotsanfrage eröffnet. Die Felder der Eingabemaske sind gemäss folgender Tabelle zu editieren:
+
+| Bezeichnung         | Beschreibung                                                                                                                             |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Lieferant           | Es erscheinen alle Einträge der Liste "Kontakte" zur Auswahl.                                                                            |
+| Lieferantenreferenz | Referenz zur Bezeichnung seitens Lieferanten (ist zum Beispiel nützlich um beim Wareneingang einen Zusammenhang zu schaffen).            |
+| Währung             | Die gemäss Optionen eingeschaltenen Währung erscheinen zur Auswahl.                                                                      |
+| Order Deadline      | Der geplante Zeitpunkt, wann die Bestellung zum Auftrag werden soll.                                                                     |
+| Lieferdatum         | Der erwartete Lieferzeitpunkt. Dieses Datum wird für die Prognosen verwedent.                                                            |
+| Ask confirmation    | Wenn die Option eingeschaltet ist, erhält der Lieferant automatisch eine eMail-Erinnerung in der er den Lieferzeitpunkt bestätigen muss. |
+
+Im Register Produkte werden die gewünschten Artikel gelistet.
+
+### Angebotsanfrage senden
+
+Mit dem Knopf _Per E-Mail Versenden_ wird eine PDF-Datei generiert und per eMail an den Lieferanten gesendet.
+
+### Angebotsanfrage nachfassen
+
+Falls man beim Lieferanten bezüglich einem fehlenden Angebot nachfassen will, verwendet man den Knopf _Per e-Mail erneut senden_. Damit öffnet sich ein Dialog für den Versand eines e-Mails an den Lieferanten mit der Angebotsanfrage als Beilage.
+
+## Benachrichtigung
+
+### An Beschaffungsauftrag erinnern
+
+Wenn der Lieferant an die Erfüllung des Beschaffungsauftrags erinnert werden soll, dann verwendet man hierzu die Aktion _Send Reminder_. Damit wird vollautomatisch eine e-Mail an den Lieferanten mit vordefiniertem Text und dem Beschaffungsauftrag als Beilage versendet.
+
+!!! tip
+    Die Aktion "Send Reminder" wird mit dem Aktivieren der Option _Ask confirmation_ zum festgelegten Zeitpunkt automatisch ausgeführt.
+
+
+## Lieferantenbewertung
+
+Pro Lieferant wird die *Pünktlichkeitsrate* gemessen.
+
+**Beispiele**
+Ein Produkt A wird beim Lieferanten 1 bestellt. Der Wareneingang erfolgt einen Tag nach der Erwarteten Ankunft.  Die Pünktlichkeitsrate beträgt dann 0%
+Anschliessend werden beim gleichen Lieferanten 10 Stück des Produktes A bestellt. Der Wareneingang erfolgt am Tag der Erwarteten Ankunft. Die Pünktlichkeitsrate beträgt dann 91% (Pünktliche Lieferung / Gesamtmenge --> 10 / 11 =  0.909)
+Anschliessend werden  beim Lieferanten 1 nochmal 10 Stück des Produktes A bestellt. Der Wareneingang erfolgt 1 Tag nach der Erwarteten Ankunft. Die Pünktlichkeitsrate beträgt dann 48% (Pünktliche Lieferung / Gesamtmenge --> 10 / 21 =  0.476)
+
+Falls in der Bestellung die Erwartete Ankunft geändert wird, dann wird im Wareneingang das Feld *Frist* synchron nachgeführt. Die Berechnung der Pünktlichkeitsrate erfolgt anhand der Frist.
+
+Zu früh geliefert gilt als pünktlich geliefert.
+
+!!! tip
+    Die App *Lager* muss installiert sein.
+
+
+## Portal
+
+### Portal-Ansicht Bestellung anzeigen
+
+Die Portal-Ansicht einer Bestellung können Sie wie folgt anzeigen:
+
+- Öffnen Angebotsanfrage
+- Ausführen _Aktionen > Teilen > Text kopieren_
+- Neues privates Browser-Fenster öffnen
+- Link in Adressleiste einfügen
+
+!!! tip
+    In einem privaten Browser werden die Cookies nicht geladen und somit wird man nicht automatisch bei Odoo angemeldet.
+
+
+## Adressen
+
+### Lieferadresse ändern
+
+Auf einer Bestellung ist die Lieferadresse standardmässig die Adresse der eigenen Firma gemäss _Einstellungen > Unternehmen_.
+Falls eine andere Lieferadresse gewünscht ist, lässt sich das über das Einrichten eines entsprechendes Lagers/Vorgangstyp erreichen.
+
+Jedes Lager hat eine Adresse.
+
+![Einkauf Lager Adresse](attachments/Einkauf%20Lager%20Adresse.png)
+
+Die Adresse kann auch eine spezielle Lieferandresse sein.
+
+![Einkauf Lager Adresse Lieferadresse](attachments/Einkauf%20Lager%20Adresse%20Lieferadresse.png)
+
+Falls also für eine Bestellung verschiedene Lieferadressen zur Verfügung stehen sollen, muss für jede Adresse ein Lager eingerichtet werden.
+
+![Einkauf Lager Anlieferung](attachments/Einkauf%20Lager%20Anlieferung.png)
+
+Die Lieferanschrift kann auf der Bestellung gemäss der folgenden Abbildung gewählt werden (die Markierung zeigt den Vorgangstyp):
+
+![Einkauf Lieferadresse Anlieferung](attachments/Einkauf%20Lieferadresse%20Anlieferung.png)
+
+Die Bestellung sieht dann wie folgt aus:
+
+![Einkauf Bestellung Beispiel Lieferadresse](attachments/Einkauf%20Bestellung%20Beispiel%20Lieferadresse.png)
+
+## Auswertung
+
+### Einkaufszeilen anzeigen
+
+Damit Sie eine Übersicht der Lohnabrechnungszeilen erhalten, folgen Sie dem HowTo [Neue Ansicht mit Aktion hinzufügen](Development%20Actions.md#Neue%20Ansicht%20mit%20Aktion%20hinzufügen) und verwenden diese Werte:
+
+Name der Aktion: `Einkaufszeilen`\
+Objekt: `purchase.order.line`\
+Ansichtsmodus: `tree,form,pivot`\
+Menü: `Einkaufszeilen`\
+Obermenü: `Einkauf/Produkte`\
+Aktion: `ir.actions.act_window` `Einkaufszeilen`\
+Nummernfolge: `90`
+
+Das Ergebnis sollte so aussehen:
+
+![](attachments/Einkauf%20Einkaufszeilen.png)
+
+### Berechtigungen anhand von Gruppen filtern
+
+Im folgenden Beispiel werden ausgewählte Bestellungen nur für eine bestimmte Gruppe angezeigt.
+
+Legen Sie auf dem Datenmodell diese _Datensatzregeln_ fest:
+
+**Name**: Purchase Confidential\
+**Gruppen**: Interne Benutzer\
+**Domain**: `[('x_group_ids', 'in', [g.id for g in user.groups_id])]`\
+**Berechtigung**: Lesen
+
+**Name**: Purchase Public\
+**Gruppen**: Interne Benutzer\
+**Domain**: `[('x_group_ids', '=',False)]`\
+**Berechtigung**: Lesen

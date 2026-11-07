@@ -1,0 +1,91 @@
+---
+description: Bezahlmethoden definieren.
+forge: github.com
+kind: howto
+name: account_payment_mode
+partner: OCA
+prev: ./accounting
+repo: OCA/bank-payment
+title: Account Payment Mode
+versions:
+  - '19.0'
+  - '18.0'
+  - '17.0'
+  - '16.0'
+  - '15.0'
+  - '14.0'
+---
+
+
+# Account Payment Mode
+
+![icon_oca_app](attachments/icon_oca_app.png)
+
+{{ $frontmatter.description }}
+
+Technischer Name: {{ $frontmatter.name }}\
+Repository: <a v-bind:href="`https://${$frontmatter.forge}/${$frontmatter.repo}/tree/${$frontmatter.versions[0]}/${$frontmatter.name}`">https://{{ $frontmatter.forge }}/{{ $frontmatter.repo }}/tree/{{ $frontmatter.versions[0] }}/{{ $frontmatter.name }}</a>
+
+## Beschreibung
+
+Diese Erweiterung ermöglicht die Verwaltung von Zahlungsmodis.
+
+## Konfiguration
+
+### Zahlungsmodus erfassen
+
+Navigieren Sie nach _Buchhaltung > Konfiguration > Verwaltung > Zahlungsmodi_. Erstellen Sie eine neuen _Zahlungsmodus_ erfassen:
+
+- **Name**: Name des Zahlungsmodus, beispielsweise _Manuell Bank_
+- **Zahlungsmethode**: Zahlungsmethode auswählen, beispielsweise _\[manual\] Manuell (outbound)_
+- **Verbindung zum Bankkonto**: Wählen Sie hier _Variable_
+- **Erlaubte Banken Logbuch**: Wählen Sie hier ein bestimmtes Bank-Journal aus
+
+## Verwendung
+
+### Zahlungsmodus auf Lieferantenrechnung festlegen
+
+Navigieren Sie nach _Buchhaltung > Lieferanten > Rechnungen_ und zeigen Sie eine Lieferantenrechnung an. Treffen Sie im Feld _Zahlungsmodus_ eine Auswahl.
+
+## Automatisierungsregeln
+
+### Zahlungsmethode von Rechnung auf Zahlung übertragen
+
+Erstellen Sie unter _Einstellungen > Technisch > Automation > Automatisierungsregeln_ einen Eintrag mit diesen Werten:
+
+Name der Aktion: `Zahlungsmethode von Rechnung auf Zahlung übertragen`\
+Modell: `account.payment.register`\
+Auslöser: _Auf Basis von Formularanpassungen_\
+Auslöser-Felder: `journal_id`\
+Folgeaktion: Code ausführen\
+Python-Code:
+
+```python
+# Get current move
+move_id = record.line_ids.move_id[0]
+# raise UserError(move_id)
+
+# Set journal and method line if payment mode is set
+if move_id and move_id.payment_mode_id:
+  # Get journal from payment mode
+  if move_id.payment_mode_id.bank_account_link == 'variable':
+    journal_id = move_id.payment_mode_id.variable_journal_ids[0]
+  if move_id.payment_mode_id.bank_account_link == 'fixed':
+    journal_id = move_id.payment_mode_id.fixed_journal_id
+  # raise UserError(journal_id)
+
+  # Get payment method from mode
+  method_id = move_id.payment_mode_id.payment_method_id
+
+  # Filter available lines
+  if method_id.payment_type == 'outbound':
+    line_id = journal_id.outbound_payment_method_line_ids.filtered(lambda l: l.payment_method_id == method_id)[0]
+  if method_id.payment_type == 'inbound':
+    line_id = journal_id.inbound_payment_method_line_ids.filtered(lambda l: l.payment_method_id == method_id)[0]
+  # raise UserError([line_id, method_id])
+
+  record.update({
+    'journal_id': journal_id.id,
+    'payment_method_line_id': line_id.id
+  })
+```

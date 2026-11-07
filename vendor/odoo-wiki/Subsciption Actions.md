@@ -1,0 +1,295 @@
+---
+title: Abonnement Aktionen
+description: Arbeitsflüsse für Abonnemente automatisieren.
+kind: howto
+section: true
+prev: ./sale
+partner: Mint System
+---
+
+# Abonnemente Aktionen
+
+![icons_odoo_sale](attachments/icons_odoo_sale.png)
+
+{{ $frontmatter.description }}
+
+## Aktionen
+
+### Abonnement schliessen
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+- **Name**: `Abonnement schliessen`
+- **Modell**: `sale.order`
+- **Typ**: `Code ausführen`
+- **Code**:
+
+```python
+records.set_close()
+```
+
+Die Aktion mit dem Knopf _Kontextuelle Aktion erstellen_ bestätigen und speichern.
+
+### Start- und Enddatum von Abonnement übernehmen
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+- **Name**: `Start- und Enddatum von Abonnement übernehmen`
+- **Modell**: `account.move`
+- **Typ**: `Code ausführen`
+- **Code**:
+
+```python
+for line in records.invoice_line_ids.filtered(lambda line: line.product_id.recurring_invoice):
+  if line.sale_line_ids:
+    end_date = line.sale_line_ids[0].order_id.next_invoice_date - datetime.timedelta(days=1)
+    # Get delta in years
+    recurrence_id = line.sale_line_ids[0].order_id.recurrence_id
+    duration = recurrence_id.duration
+    delta = dateutil.relativedelta.relativedelta(years=duration)
+    if recurrence_id.unit == "month":
+      delta = dateutil.relativedelta.relativedelta(months=duration)
+    # Calculate start date from end date
+    # raise UserError([end_date, delta_years])
+    start_date = end_date - delta + datetime.timedelta(days=1)
+    line["subscription_start_date"] = start_date
+    line["subscription_end_date"] = end_date
+```
+
+Die Aktion mit dem Knopf _Kontextuelle Aktion erstellen_ bestätigen und speichern.
+
+### Abonnement-Informationen migrieren
+
+Mit dieser Aktion können nach einer Migration von Odoo 15.0 auf 16.0 und höher die Abonnement-Informationen von den archivierten Verkaufsaufträgen auf die aktiven übertragen werden.
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+- **Name**: `Abonnement-Informationen migrieren`
+- **Modell**: `sale.order`
+- **Typ**: `Code ausführen`
+- **Code**:
+
+```python
+for order in records:
+    origin_order_id = order.origin_order_id
+    if origin_order_id:
+        order.write({
+            "plan_id": origin_order_id.plan_id,
+            "next_invoice_date": origin_order_id.next_invoice_date,
+            "start_date": origin_order_id.start_date,
+            "subscription_state": origin_order_id.subscription_state
+        })
+```
+
+Die Aktion mit dem Knopf _Kontextuelle Aktion erstellen_ bestätigen und speichern.
+
+## Geplante Aktionen
+
+Die Aktionen deren Namen mit _Verkaufsabonnment:_ beginnt, sind bereits definierte Aktionen. Deren Funktionsweise wird hier erläutert.
+
+### Verkaufsabonnement: Ablauf des Abonnements
+
+Diese Aktion prüft das Enddatum der Abonnmente. Standardmässig wird diese Aktion jede Woche ausgeführt.
+
+Wenn das Enddatum zwischen heute und in einem Monat liegt, wird das Abonnement mit _Zu erneuern_ markiert.
+
+Wenn das Enddatum vor dem heutigen Tag liegt, wird das Abonnement geschlossen. Hat das Abonnement unbezahlte Rechnungen wird dies im Chatter vermerkt.
+
+### Verkaufsabonnement: wiederkehrende Rechnungen und Zahlungen erstellen
+
+Diese Aktion prüft das nächste Abrechnungsdatum und Enddatum der Abonnmente. Standardmässig wird diese Aktion jeden Tag ausgeführt.
+
+Wenn das Enddatum vor dem heutigen Tag liegt, wird das Abonnement geschlossen.
+
+Wenn das Abrechnungsdatum erreicht wurde, wird eine Rechnung erstellt und das nächste Abrechnungsdatum aktualisiert. Die Rechnung wird automatisch gebucht und verschickt.
+
+### Verkaufsabonnement: Vor Ablauf in Stufe verschieben
+
+Diese geplante Aktion prüft das nächste Abrechnungsdatum und verschiebt die Abonnement abhängig von der verbleibenden Wochen in eine entsprechende Stufe.
+
+Erstellen Sie eine externe ID `__custom__.reminder_stage1` und `__custom__.reminder_stage2` für die ausgewählten Spalten.
+
+Navigieren Sie nach _Einstellungen > Technisch > Automatisierungsregeln_ und erstellen Sie einen neuen Eintrag:
+
+- **Name**: `Verkaufsabonnement: Vor Ablauf in Spalte verschieben`
+- **Modell**: `ir.actions.server`
+- **Ausführen alle**: `1` Tage
+- **Nächstes Ausführungsdatum**: `DD.MM.YYYY 06:00:00`
+- **Anzahl der Anrufe**: `-1`
+- **Typ**: `Code ausführen`
+- **Code**:
+
+```python
+# Settings
+stage1_ref = "__custom__.reminder_stage1"
+stage2_ref = "__custom__.reminder_stage2"
+stage1_weeks = 6
+stage2_weeks = 2
+
+# Get references
+stage1_id = env.ref(stage1_ref)
+stage2_id = env.ref(stage2_ref)
+stage_running_id = env.ref("sale_subscription.sale_subscription_stage_in_progress")
+
+# Get expiring dates
+today = datetime.datetime.today()
+stage1_date = today + datetime.timedelta(weeks=stage1_weeks)
+stage2_date = today + datetime.timedelta(weeks=stage2_weeks)
+
+# Search and move stage 1
+stage1_subscriptions = env["sale.order"].search([
+   ("is_subscription", "=", True),
+   ("stage_id", "=", stage_running_id.id),
+   ("next_invoice_date", "<=", stage1_date),
+   ("next_invoice_date", ">", stage2_date),
+])
+# raise UserError(stage1_subscriptions)
+stage1_subscriptions.write({"stage_id": stage1_id.id})
+
+# Search and move stage 2
+stage2_subscriptions = env["sale.order"].search([
+   ("is_subscription", "=", True),
+   ("stage_id", "in", [stage1_id.id, stage_running_id.id]),
+   ("next_invoice_date", "<=", stage2_date),
+   ("next_invoice_date", ">", today),
+])
+# raise UserError(stage2_subscriptions)
+stage2_subscriptions.write({"stage_id": stage2_id.id})
+```
+
+### Verkaufsabonnement: Vor Abrechnung verlängern
+
+Diese geplante Aktion prüft das nächste Abrechnungsdatum der Abonnemente, erstellt ein Angebot zur Verlängerung und sendet dieses an den Kunden. Die folgenden Kriterien müssten für eine automatische Verlängerung stimmen:
+
+- Der Verkaufsaufrag ist ein Abonnement
+- Das Abonnement hat eine bestimmte Preisliste
+- Das Abonnement ist in der Stufe _Laufend_
+- Der Verkaufsauftrag ist im Status _Verkaufsauftrag_
+- Das nächste Abrechnungsdatum liegt zwischen Heute und plus 6 Wochen
+
+Navigieren Sie nach _Einstellungen > Technisch > Automatisierungsregeln_ und erstellen Sie einen neuen Eintrag:
+
+- **Name**: `Verkaufsabonnement: Vor Abrechnung verlängern`
+- **Modell**: `ir.actions.server`
+- **Ausführen alle**: `1` Tage
+- **Nächstes Ausführungsdatum**: `DD.MM.YYYY 06:00:00`
+- **Anzahl der Anrufe**: `-1`
+- **Typ**: `Code ausführen`
+- **Code**:
+
+```python
+# Settings
+weeks_before_invoice_date = 6
+mail_template = env.ref("license_ocad_mail.mail_template_extend_subscription")
+email_layout = "mail.mail_notification_layout_with_responsible_signature"
+default_price_list = "product.list0"
+
+# Get references
+pricelist_id = env.ref(default_price_list)
+tag_id = env.ref("__custom__.tag_missing_mail")
+
+# Get resellers
+reseller_ids = env["res.partner"].search([("grade_id","!=",False)])
+
+# Get extend date
+today = datetime.datetime.today()
+extend_date = today + datetime.timedelta(weeks=weeks_before_invoice_date)
+
+# Search subscriptions
+extend_subscriptions = env["sale.order"].search([
+    # ("partner_id", "not in", reseller_ids.ids),
+    ("is_subscription", "=", True),
+    ("pricelist_id", "=", pricelist_id.id),
+    ("subscription_state", "=", "3_progress"),
+    ("subscription_child_ids", "=", False),
+    ("state", "=", "sale"),
+    ("next_invoice_date", "<=", extend_date),
+    ("next_invoice_date", ">=", today),
+    ("license_count", ">", 0)
+])
+
+# raise UserError([extend_subscriptions, extend_date])
+
+# Create and send renewal order
+for subscription in extend_subscriptions:
+    renewal_so = env["sale.order"]
+    
+    try:
+        res = subscription.prepare_renewal_order()
+        res_id = res["res_id"]
+        renewal_so = env["sale.order"].browse(res_id)
+        composer = env['mail.compose.message'].with_context(
+            default_model='sale.order',
+            default_res_ids=[renewal_so.id],
+            default_template_id=mail_template.id,
+            default_composition_mode='comment',
+        ).create({})
+        composer.action_send_mail()
+        renewal_so.action_quotation_sent()
+    except Exception as e:
+        renewal_so["tag_ids"] = [tag_id.id]
+        env["helpdesk.ticket"].create({
+            "name": "Verlängerung: Fehler bei Erneuerung",
+            "description": "Das Abonnement " + renewal_so.name + " konnte nicht verlängert werden, es ist ein Fehler entstanden."
+        })
+        # subscription.set_close()
+```
+
+### Verkaufsabonnement: Reminder Verlängerung versenden
+
+Diese geplante Aktion versendet eine bestimmte Anzahl Tage vor Erreichung des Ablaufdatum einen Reminder zur Verlängerung des Abonnements. Die folgenden Bedingungen müssen zutreffen:
+
+- Der Verkaufsaufrag ist ein Abonnement
+- Der Verkaufsauftrag ist in der Stufe _Angebot versendet_
+- Das Ablaufdatum ist Heute in 2 Wochen
+- Der Verkaufsauftrag hat Lizenzen
+
+Navigieren Sie nach _Einstellungen > Technisch > Automatisierungsregeln_ und erstellen Sie einen neuen Eintrag:
+
+- **Name**: `Verkaufsabonnement: Reminder Verlängerung versenden`
+- **Modell**: `ir.actions.server`
+- **Ausführen alle**: `1` Tage
+- **Nächstes Ausführungsdatum**: `DD.MM.YYYY 06:00:00`
+- **Anzahl der Anrufe**: `-1`
+- **Typ**: `Code ausführen`
+- **Code**:
+
+```python
+# Settings
+weeks_before_validity_date = 2
+mail_template = env.ref("__custom__.mail_template_reminder_extend_subscription")
+tag = env['crm.tag'].search([('name', '=', "Reminder Sent")], limit=1)
+
+# Get extend date
+today = datetime.datetime.today()
+remind_date = (today + datetime.timedelta(weeks=weeks_before_validity_date)).date()
+
+# Search subscriptions
+remind_subscriptions = env["sale.order"].search([
+    ("is_subscription", "=", True),
+    ("state", "=", "sent"),
+    ("subscription_state", "=", "2_renewal"),
+    ("validity_date", "=", remind_date),
+    ("license_count", ">", 0),
+    ("tag_ids", "not in", [tag.id])
+])
+
+# raise UserError([remind_subscriptions.mapped("name"), remind_subscriptions.mapped("validity_date")])
+
+# Create and send renewal order
+for subscription in remind_subscriptions:
+    try:
+        composer = env['mail.compose.message'].with_context(
+            default_model='sale.order',
+            default_res_ids=[subscription.id],
+            default_template_id=mail_template.id,
+            default_composition_mode='comment',
+        ).create({})
+        composer.action_send_mail()
+        subscription.write({'tag_ids': [(4, tag.id)]})
+    except:
+        env["helpdesk.ticket"].create({
+            "name": "Reminder: Fehler bei Versand",
+            "description": "Beim Versand des Reminder für Abonnement " + renewal_so.name + " ist ein Fehler entstanden."
+        })
+```

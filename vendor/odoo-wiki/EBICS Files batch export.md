@@ -1,0 +1,40 @@
+---
+description: EBICS-Dateien automatisch hochladen.
+forge: github.com
+kind: howto
+name: account_ebics_batch_payment
+partner: Thirdparty
+prev: ./accounting
+repo: Noviat/account_ebics
+title: EBICS Files batch export
+versions:
+  - '19.0'
+  - '18.0'
+  - '17.0'
+  - '16.0'
+  - '15.0'
+  - '14.0'
+---
+
+
+# EBICS Files batch export
+
+![](attachments/icons_odoo_ebics.png)
+
+{{ $frontmatter.description }}
+
+Technischer Name: {{ $frontmatter.name }}\
+Website: <https://apps.odoo.com/apps/modules/18.0/account_ebics_batch_payment>\
+Repository: <a v-bind:href="`https://${$frontmatter.forge}/${$frontmatter.repo}/tree/${$frontmatter.versions[0]}/${$frontmatter.name}`">https://{{ $frontmatter.forge }}/{{ $frontmatter.repo }}/tree/{{ $frontmatter.versions[0] }}/{{ $frontmatter.name }}</a>
+
+## Verwendung
+
+### EBICS-Batch-Import-Logs anzeigen
+
+Navigieren Sie nach _Rechnungsstelung > EBICS Processing > EBICS Batch Import Logs_. Hier finden Sie die letzten Ausführungen des EBICS-Batch-Import.
+
+## Geplante Aktionen
+
+### EBICS Batch Import
+
+Diese Aktion ist standardmässig deaktiviert. Sie wird täglich ausgeführt und führt den Prozess [EBICS-Download ausführen](EBICS%20banking%20protocol.md#EBICS-Download%20ausführen) durch.

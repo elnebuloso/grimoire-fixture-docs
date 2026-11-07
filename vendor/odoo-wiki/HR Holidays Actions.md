@@ -1,0 +1,36 @@
+---
+title: Abwesenheiten Aktionen
+description: Aktionen für Abwesenheit App einrichten.
+kind: howto
+section: true
+prev: ./hr-holidays
+partner: Mint System
+---
+
+# Abwesenheiten Aktionen
+
+![icons_odoo_hr_holidays](attachments/icons_odoo_hr_holidays.png)
+
+{{ $frontmatter.description }}
+
+## Aktionen
+
+### Ablehnen
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+- **Name**: `Ablehnen`
+- **Modell**: `hr.leave`
+- **Typ**: `Code ausführen`
+- **Code**: 
+
+```python
+for rec in records:
+  rec.action_refuse()
+```
+
+Die Aktion mit dem Knopf _Kontextuelle Aktion erstellen_ bestätigen und dann speichern.
+
+In der Liste der Abwesenheiten erscheint nun in der Auswahl _Aktion_ das Menu _Ablehnen_.
+
+![](attachments/Aktionen%20Abwesenheitszeiten%20Ablehnen.png)

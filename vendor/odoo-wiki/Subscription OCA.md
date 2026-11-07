@@ -1,0 +1,74 @@
+---
+description: OCA-Alternative für Abonnemente.
+forge: github.com
+kind: howto
+name: subscription_oca
+partner: OCA
+prev: ./contract
+repo: OCA/contract
+title: Subscription OCA
+versions:
+  - '19.0'
+  - '18.0'
+  - '17.0'
+  - '16.0'
+  - '15.0'
+  - '14.0'
+---
+
+
+# Subscription OCA
+
+![](attachments/oca_icons_subscription_oca.png)
+
+{{ $frontmatter.description }}
+
+Technischer Name: {{ $frontmatter.name }}\
+Repository: <a v-bind:href="`https://${$frontmatter.forge}/${$frontmatter.repo}/tree/${$frontmatter.versions[0]}/${$frontmatter.name}`">https://{{ $frontmatter.forge }}/{{ $frontmatter.repo }}/tree/{{ $frontmatter.versions[0] }}/{{ $frontmatter.name }}</a>
+
+## Verwendung
+
+### Produkt als subscribable festlegen
+
+Zeiten Sie ein Produkt unter *Subscriptions > Subscriptions > Product* an und öffnen Sie den Tab *Verkauf*. Aktivieren Sie das Feld *Subscribable product* und legen Sie ein *Subscribable template* fest.
+
+## Auswertung
+
+### Subscription lines anzeigen
+
+Damit Sie eine Übersicht der Subscription lines  erhalten, folgen Sie dem HowTo [Neue Ansicht mit Aktion hinzufügen](Development%20Actions.md#Neue%20Ansicht%20mit%20Aktion%20hinzufügen) und verwenden diese Werte:
+
+Name der Aktion: `Subscription lines`\
+Objekt: `sale.subscription.line`\
+Ansichtsmodus: `tree,form,pivot`\
+Menü: `Subscription lines `\
+Obermenü: `Subscriptions/Subscriptions`\
+Aktion: `ir.actions.act_window` `Subscription lines`\
+Nummernfolge: `50`
+
+
+## Aktionen
+
+### Rechnung mit Abonnement verbinden
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+Name der Aktion: `Mit Abonnement verbinden`\
+Modell: `account.move`\
+Typ: `Code ausführen`
+
+Kopieren Sie die folgenden Zeilen in das Feld _Python-Code_:
+
+```python
+for rec in records:
+  order_ids = rec.invoice_line_ids.sale_line_ids.order_id
+  if order_ids:
+    subscriptions_ids = env['sale.subscription'].search([('sale_order_id', 'in', [order_ids.id])])
+    if subscriptions_ids:
+      rec.write({
+        'subscription_id': subscriptions_ids[0].id
+      })
+      # raise UserError(subscriptions_ids)
+```
+
+Die Aktion mit dem Knopf _Kontextuelle Aktion erstellen_ bestätigen und dann speichern.

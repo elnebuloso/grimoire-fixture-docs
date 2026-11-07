@@ -1,0 +1,33 @@
+---
+title: SMTP Konfiguration (E-Mail)
+description: "i-doit versendet automatisiert E-Mails bei bestimmten Events oder Zustandsabfragen -- etwa für Benachrichtigungen oder Workflows."
+icon: mail-back
+status:
+lang: de
+---
+
+# SMTP Konfiguration (E-Mail)
+
+_i-doit_ versendet automatisiert E-Mails bei bestimmten Events oder Zustandsabfragen -- etwa für Benachrichtigungen oder Workflows.
+
+!!! warning "Console"
+    Diese Konfiguration ist zwingend erforderlich, wenn du automatisierte E-Mail-Benachrichtigungen über das [CLI](../automatisierung-und-integration/cli/index.md) mit den [Benachrichtigungen](../auswertungen/benachrichtigungen.md) oder Workflows nutzt. Ohne sie werden keine E-Mails versendet!
+
+Die SMTP-Konfiguration findest du unter **Verwaltung → Import und Schnittstellen → SMTP Konfiguration (E-Mail)**.
+
+[![smtp-konfiguration](../assets/images/de/automatisierung-und-integration/1-smtp.png)](../assets/images/de/automatisierung-und-integration/1-smtp.png)
+
+Dort steht eine Konfigurationsmaske mit folgenden Feldern zur Verfügung:
+
+| Feld                                          | Beschreibung                                                                                                                                                                                                                                              |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SMTP Host                                     | Angabe des Hostnamen oder der IP-Adresse des Mailservers.                                                                                                                                                                                                 |
+| SMTP Port                                     | Standard-Port ist 25. Bei einer verschlüsselten Verbindung oder abweichenden Konfiguration muss der Port entsprechend abgeändert werden.                                                                                                                  |
+| SMTP Username                                 | Angabe des Username                                                                                                                                                                                                                                       |
+| SMTP Password                                 | Angabe des Passwort                                                                                                                                                                                                                                       |
+| Absender                                      | Absende E-Mail-Adresse für den Mailversand                                                                                                                                                                                                                |
+| Name                                          | Absender-Name für den Mailversand.                                                                                                                                                                                                                        |
+| Timeout                                       | Timeout für den Versand                                                                                                                                                                                                                                   |
+| SMTP Debug                                    | Für die initiale Konfiguration ist es oft hilfreich das Debugging zu aktivieren. Das Log wird im Verzeichnis `log/` im _i-doit_-Hauptverzeichnis abgelegt.<br><br>(Standard: **Nein**)                                                                    |
+| Betreff Präfix                                | Optionaler Eintrag um in E-Mail-Clients regelbasierte Automatisierungen besser zu unterstützen.                                                                                                                                                           |
+| Benachrichtigungstemplate für Wartungsvertrag | Dieses Template wurde in einer vorherigen Versionen verwendet und wird in den aktuellen _i-doit_\-Versionen nicht mehr benötigt.<br><br>In den aktuellen Versionen kann das Template im **Benachrichtigungssystem** unter **Extras** konfiguriert werden. |

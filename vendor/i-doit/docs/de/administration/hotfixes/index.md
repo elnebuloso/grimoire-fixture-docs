@@ -1,0 +1,87 @@
+---
+title: Hotfixes
+description: Hotfixes für die aktuelle i-doit Version
+icon: fontawesome/solid/bug-slash
+lang: de
+---
+
+# Hotfixes
+
+!!! success "Hotfixes für Version **39**"
+
+Ein Hotfix beseitigt einen bestimmten Fehler und wird als ZIP-Datei bereitgestellt. Du entpackst die ZIP-Datei im **Installationsverzeichnis** von i-doit und bestätigst das Überschreiben vorhandener Dateien.
+
+Hotfixes für ältere Versionen findest du im [Hotfix Archiv](hotfix-archiv/index.md).
+
+!!! tip "Empfehlung"
+    Spiele Hotfixes nur ein, wenn sie für den sauberen Betrieb deiner Installation notwendig sind oder der Support dich dazu auffordert. Erstelle vorher immer ein [Backup von i-doit](../../wartung-und-betrieb/daten-sichern-und-wiederherstellen/index.md). Wenn du nach der Verwendung eines Hotfixes den Support kontaktierst, weise bitte darauf hin.
+
+!!! warning "**Einverständniserklärung**"
+    Mit dem Herunterladen eines Hotfixes erklärst du, dass du die oben genannten Hinweise vollständig gelesen und verstanden hast.
+
+## Anwendung bei GNU/Linux
+
+```sh
+sudo cp i-doit_<version>_hotfix_<description>_<ticket>_<commit>.zip /var/www/html/
+cd /var/www/html/
+sudo -u www-data unzip i-doit_<version>_hotfix_<description>_<ticket>_<commit>.zip
+sudo rm i-doit_<version>_hotfix_<description>_<ticket>_<commit>.zip
+```
+
+## Anwendung bei Windows
+
+[![Entpacken](../../assets/images/de/administration/hotfixes/example-windows-zip.png)](../../assets/images/de/administration/hotfixes/example-windows-zip.png)
+
+Pfad für den **i-doit Windows installer**:
+
+```txt
+C:\ProgramData\i-doit\apache-2.4\htdocs
+```
+
+Pfad für den **i-doit Discovery installer**:
+
+```txt
+C:\ProgramData\i-doit-discovery\apache-2.4\htdocs
+```
+
+* * *
+
+## i-doit core
+
+### Install and update add-ons in the Add-on & Subscription Center (ID-12679)
+
+[i-doit_39_hotfix_ID-12679_417db18.zip :material-file-download:](../../assets/downloads/hotfixes/39/i-doit_39_hotfix_ID-12679_417db18.zip){ .md-button .md-button--primary }
+
+### LDAP login fails for users without a local password (ID-12645)
+
+[i-doit_39_hotfix_ID-12645_860c18e.zip :material-file-download:](../../assets/downloads/hotfixes/39/i-doit_39_hotfix_ID-12645_860c18e.zip){ .md-button .md-button--primary }
+
+* * *
+
+## Replacement Add-on
+
+### TypeErrors when selecting objects to swap (SWAPCI-47)
+
+[Swapci_1.6_hotfix_SWAPCI-47_c1d34a3.zip :material-file-download:](../../assets/downloads/hotfixes/swap-ci/Swapci_1.6_hotfix_SWAPCI-47_c1d34a3.zip){ .md-button .md-button--primary }
+
+* * *
+
+## Flows Add-on
+
+### Do not fill other fields than selected
+
+[Flows_1.3.0_hotfix_FLOW-473_9c5485d.zip :material-file-download:](../../assets/downloads/hotfixes/flows/Flows_1.3.0_hotfix_FLOW-473_9c5485d.zip){ .md-button .md-button--primary }
+
+### Fix AutomationsButtons is not assigned error in the GUI (FLOW-428)
+
+!!! note "You need to install the fixed Version via the [Admin-Center](../admin-center.md)."
+
+[hotfix-i-doit-flows-1.3.0.zip :material-file-download:](../../assets/downloads/hotfixes/flows/hotfix-i-doit-flows-1.3.0.zip){ .md-button .md-button--primary }
+
+## JDisc Connector
+
+### Importing layer-3-nets causes duplicated link-local nets (JDisc-112)
+
+??? info "This Hotfix is a new JDisc version and can be installed either bei extracting the file at the i-doit directory or by installing it like a normal add-on"
+
+[module-i-doit-jdisc-1.0.5.zip :material-file-download:](../../assets/downloads/hotfixes/jdisc/module-i-doit-jdisc-1.0.5.zip){ .md-button .md-button--primary }

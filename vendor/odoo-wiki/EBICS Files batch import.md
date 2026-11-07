@@ -1,0 +1,52 @@
+---
+description: EBICS-Dateien automatisch herunterladen.
+forge: github.com
+kind: howto
+name: account_ebics_batch
+partner: Thirdparty
+prev: ./accounting
+repo: Noviat/account_ebics
+title: EBICS Files batch import
+versions:
+  - '19.0'
+  - '18.0'
+  - '17.0'
+  - '16.0'
+  - '15.0'
+  - '14.0'
+---
+
+
+# EBICS Files batch import
+
+![](attachments/icons_odoo_ebics.png)
+
+{{ $frontmatter.description }}
+
+Technischer Name: {{ $frontmatter.name }}\
+Website: <https://apps.odoo.com/apps/modules/18.0/account_ebics_batch>\
+Repository: <a v-bind:href="`https://${$frontmatter.forge}/${$frontmatter.repo}/tree/${$frontmatter.versions[0]}/${$frontmatter.name}`">https://{{ $frontmatter.forge }}/{{ $frontmatter.repo }}/tree/{{ $frontmatter.versions[0] }}/{{ $frontmatter.name }}</a>
+
+## Konfiguration
+
+### Automatischer Import aktivieren
+
+Die Erweiterung installiert eine geplante Aktion als Vorlage. Zeigen Sie die geplante Aktion _EBICS Batch Import_ unter _Einstellungen > Technisch > Automatisierungsregeln_ an. Aktivieren Sie die Aktion und legen Sie als _Zeiplaner-Benutzer_ einen Benutzer fest, der Zugriff auf die EBICS-Konfigurationen hat.
+
+Kopieren Sie den folgenden Code in das Feld _Python-Code_:
+
+```python
+ebics_config_ids = 1
+# date_from = datetime.datetime.today() - datetime.timedelta(days=1)
+# date_to = datetime.datetime.today() - datetime.timedelta(days=1)
+today = datetime.datetime.today()
+model._batch_import(ebics_config_ids=ebics_config_ids, date_from=today , date_to=today)
+```
+
+Die Aktion lädt nun jeden Tag die EBIC-Dateien des Vortags herunter und verarbeitet diese.
+
+## Verwendung
+
+### Import-Log anzeigen
+
+Zeigen Sie die Ansicht _Buchhaltung > EBICS Processing > EBICS Batch Import Logs_ an. Für jeden automatischen Import-Vorgang wird hier ein Log-Eintrag erstellt.

@@ -1,0 +1,114 @@
+---
+description: Teilen Sie Zeichnungen und Step-Dateien zu ihren Produkten als URL-Dokument.
+forge: github.com
+kind: howto
+name: mrp_documents_share
+partner: Mint System
+prev: ./manufacture
+repo: Mint-System/Odoo-Apps-Manufacture
+title: MRP Documents Share
+versions:
+  - '18.0'
+  - '17.0'
+  - '16.0'
+  - '15.0'
+  - '14.0'
+---
+
+
+# MRP Documents Share
+
+![icon_oms_box](attachments/icons_odoo_mint_system.png)
+
+{{ $frontmatter.description }}
+
+Technischer Name: {{ $frontmatter.name }}\
+Repository: <a v-bind:href="`https://${$frontmatter.forge}/${$frontmatter.repo}/tree/${$frontmatter.versions[0]}/${$frontmatter.name}`">https://{{ $frontmatter.forge }}/{{ $frontmatter.repo }}/tree/{{ $frontmatter.versions[0] }}/{{ $frontmatter.name }}</a>
+
+## Verwendung
+
+### Zeichnung und Step-Datei hinzufügen
+
+Erstellen Sie einen teilbaren Link zu ihrer Zeichung oder Step-Datei. Hier ein Beispiel mit Google Drive:
+
+![](attachments/Google%20Drive%20öffentlicher%20Link.png)
+
+Navigieren Sie zu ihrem Produkt und erstellen Sie einen neuen Eintrag für die Zeichnung oder Step-Datei.
+
+![](attachments/MRP%20Documents%20Share%20Zeichnung%20hinzufügen.png)
+
+Im Feld _Url_ fügen Sie den öffentlichen Link hinzu.
+
+![](attachments/MRP%20Documents%20Share%20Url%20hinzufügen.png)
+
+Wenn Sie eine Bestellung auslösen, erscheint der Link auf dem Bericht und der Portal-Ansicht.
+
+Bericht:
+
+![](attachments/MRP%20Documents%20Share%20Bestellung.png)
+
+Portal-Ansicht:
+
+![](attachments/MRP%20Documents%20Share%20Portal%20Ansicht.png)
+
+Falls das Produkt produziert wird, sehen Sie in der Workcenter-Tablet-Ansicht den Link auf die Zeichnung.
+
+![](attachments/MRP%20Documents%20Share%20Operation%20Drawing%20Link.png)
+
+### Alle Produktionsdokumente anzeigen
+
+Die hinterlegten Zeichnungen und Step-Dateien können Sie auf einer Listenanischt anzeigen lassen. Navigieren Sie nach _Fertigung > Produkte > Produktionsdokumente_.
+
+## Aktionen
+
+### Produktionsdokumente mit Produkt verknüpfen
+
+Damit die Produktionsdokumente und Produkte in beide Richtigungen verknüpft werden, kann diese Aktion auf den Produkten ausgeführt werden.
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+Name der Aktion: `Produktionsdokumente mit Produkt verknüpfen`\
+Modell: `product.template`\
+Typ: `Code ausführen`
+
+Kopieren Sie die folgenden Zeilen in das Feld _Python Code_:
+
+```python
+for rec in records:
+  if rec.drawing_file:
+    rec.drawing_file.sudo().write({
+      'res_model': 'product.template',
+      'res_id': rec.id,
+    })
+  if rec.step_file:
+    rec.step_file.sudo().write({
+      'res_model': 'product.template',
+      'res_id': rec.id,
+    })
+```
+
+Schliessen Sie die Aktion mit _Kontextuelle Aktion Erstellen_ ab. Markieren Sie die Produkte unter _Fertigung > Produkte > Produkte_ und wählen Sie _Aktionen > Produktionsdokumente mit Produkt verknüpfen_.
+
+Dasselbe können Sie für Produktvarianten einrichten:
+
+Name der Aktion: `Produktionsdokumente mit Produkt verknüpfen`\
+Modell: `product.product`\
+Typ: `Code ausführen`
+
+Kopieren Sie die folgenden Zeilen in das Feld _Python Code_:
+
+```python
+for rec in records.product_tmpl_id:
+  if rec.drawing_file:
+    rec.drawing_file.sudo().write({
+      'res_model': 'product.template',
+      'res_id': rec.id,
+    })
+  if rec.step_file:
+    rec.step_file.sudo().write({
+      'res_model': 'product.template',
+      'res_id': rec.id,
+    })
+```
+
+Schliessen Sie die Aktion mit _Kontextuelle Aktion Erstellen_ ab. Markieren Sie die Produkte unter _Fertigung > Produkte > Produkte_ und wählen Sie _Aktionen > Produktionsdokumente mit Produkt verknüpfen_.

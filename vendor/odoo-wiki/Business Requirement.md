@@ -1,0 +1,48 @@
+---
+description: Projektanforderungen erfassen und verknüpfen.
+forge: github.com
+kind: howto
+name: business_requirement
+partner: OCA
+prev: ./project
+repo: OCA/business-requirement
+title: Business Requirement
+versions:
+  - '18.0'
+  - '16.0'
+  - '15.0'
+  - '14.0'
+---
+
+
+# Business Requirement
+
+![](attachments/icon_oca_business_requirement.png)
+
+{{ $frontmatter.description }}
+
+Technischer Name: {{ $frontmatter.name }}\
+Repository: <a v-bind:href="`https://${$frontmatter.forge}/${$frontmatter.repo}/tree/${$frontmatter.versions[0]}/${$frontmatter.name}`">https://{{ $frontmatter.forge }}/{{ $frontmatter.repo }}/tree/{{ $frontmatter.versions[0] }}/{{ $frontmatter.name }}</a>
+
+## Verwendung
+
+### Projektanforderung erfassen
+
+Öffnen sie die App _Business Requirement_ und klicken sie auf _Neu_. Geben sie einen Titel ein und füllen sie die Felder wie nötig aus.
+
+![](attachments/Business%20Requirement%20erstellen.png)
+
+Beim Speichern wird gemäss Sequenz eine ID generiert. Sie können diese [Sequenz anpassen](Settings.md#Sequenz%20anpassen).
+
+![](attachments/Business%20Requirement%20Sequenz.png)
+
+## Berechtigungen
+
+### Portal-Zugriff für Stakeholder erlauben
+
+Damit Stakeholder im Portal das Business Requirement sehen, braucht es eine Anpassung der Berechtigungen. Navigieren Sie nach _Einstellungen > Benutzer und Unternehmen > Gruppen_ und zeigen Sie Gruppe _Benutzertypen / Portal_ an. Führen Sie [Datensatzregeln auf Gruppe vergeben](Settings%20Permissions.md#Datensatzregeln%20auf%20Gruppe%20vergeben) mit diesen Parameter aus:
+
+- **Name**: Business Requirement portal access
+- **Modell**: `business.requirement`
+- **Domain**: `[('portal_published', '=', True),('partner_id', '=', user.partner_id.id)]`
+- **Berechtigung**: Setze Leseberechtigung

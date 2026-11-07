@@ -1,0 +1,441 @@
+---
+title: Microsoft Windows Server
+description: "Wie i-doit unter dem Betriebssystem Windows installiert wird, beschreiben wir in diesem Artikel."
+icon: material/microsoft-windows
+status:
+lang: de
+---
+
+# Microsoft Windows Server
+
+Wie i-doit unter dem Betriebssystem Windows installiert wird, beschreiben wir in diesem Artikel. Das i-doit Installationspaket für Windows wird im [Kundenportal](../../../administration/kundenportal.md) zur Verfügung gestellt.
+
+Die Inhalte des Pakets sehen wie folgt aus:
+
+-   i-doit Windows Installer.exe
+-   idoit-XX.zip
+-   src.zip
+-   windowsdesktop-runtime-6.0.14-win-x64.exe
+
+Im Installationspaket wird immer die aktuelle [i-doit Version](../../../versionshistorie/index.md) mitgeliefert. Ebenfalls wird durch den `src.zip` Ordner eine Installation ohne Internetverbindung ermöglicht. Da der i-doit Windows installer die `windowsdesktop-runtime-6.0.14` benötigt, wird diese ebenfalls zur Verfügung gestellt falls während der installation keine Internetverbindung vorhanden ist.
+
+## Installation
+
+Nach dem Ausführen der `i-doit Windows Installer.exe` wird folgende GUI angezeigt:
+
+[![GUI](../../../assets/images/de/installation/microsoft-windows/i-doit-windows/2-idw.png)](../../../assets/images/de/installation/microsoft-windows/i-doit-windows/2-idw.png)
+
+Nach einem Klick auf **Installieren** werden im Hintergrund alle benötigten Elemente installiert.
+
+Es werden installiert:
+
+-   **Apache 2.4**
+-   **PHP 8.2**
+-   **MariaDB 10.6**
+-   **i-doit**
+
+!!! info "Ist die Windows Firewall aktiviert wird abgefragt ob die Applikation freigegeben werden darf"
+
+Bei erfolgreicher Installation wird in einem kleinem Fenster **"i-doit has been installed successfully."** angezeigt. Nach einem Klick auf **OK** wird automatisch ein neues Browser tab mit der `localhost` URL geöffnet und kann i-doit im vollen Umfang nutzen.
+
+!!! info "Sollte bei der Installation ein Fehler unterlaufen sein, wird automatisch ein log im i-doit Ordner erstellt"
+
+## Konfiguration
+
+Der Speicherort der PHP, MariaDB oder Apache Konfiguration:
+
+-   **PHP:**
+    `C:\ProgramData\i-doit\php\php.ini`
+
+-   **MariaDB:**
+    `C:\ProgramData\MariaDB\data\my.ini`
+
+-   **Apache:**
+    `C:\ProgramData\i-doit\apache-2.4\conf\httpd.conf`
+
+## Credentials
+
+Hier findest du die Login Daten für den i-doit Windows Installer:
+
+| Plattform                 | Benutzername          | Password |
+| ------------------------- | --------------------- | -------- |
+| MariaDB root              | root                  | idoit    |
+| MariaDB i-doit            | idoit                 | idoit    |
+| i-doit Admin-Center       | admin                 | admin    |
+| Installations Verzeichnis | C:\ProgramData\i-doit | -        |
+
+Die i-doit Login Daten finden Sie [hier](../../../grundlagen/erstanmeldung.md).
+
+## HTTPS einrichten (optional)
+
+Die folgende Anleitung zeigt, wie du SSL für Windows mit i-doit einrichtest. Es werden nur die notwendigen Schritte beschrieben, die benötigt werden um HTTPS zu konfigurieren. Dieser Abschnitt kann übersprungen werden.
+
+### Voraussetzungen
+
+Vorab benötigst du ein gültiges Zertifikat im `.crt` und `.key` Format. Dieses kannst du mit OpenSSL erstellen. OpenSSL kannst du z.B. hier herunterladen und installieren: [OpenSSL](https://slproweb.com/products/Win32OpenSSL.html). Sobald OpenSSL installiert ist, kannst du Win64 OpenSSL Command Prompt über die Windows-Suchleiste öffnen, indem du nach "OpenSSL" suchst.
+Hier gibst du nun folgenden Befehl ein, um das Zertifikat zu erstellen:
+
+```batch
+OpenSSL req -x509 -sha256 -nodes -days 365 -newkey rsa:4096 -keyout private.key -out certificate.crt
+```
+
+Das Zertifikat und der Private Key wurden nun in dem Ordner erstellt, in dem der Befehl ausgeführt wurde. Kopiere diese z.B. in den Ordner `ProgramData\i-doit\apache-2.4\conf\extra\`.
+
+Ohne separate OpenSSL-Installation geht es auch mit dem `openssl.exe`, das im Apache-Ordner von i-doit liegt. In der PowerShell:
+
+```powershell
+cd C:\ProgramData\i-doit\apache-2.4\conf\extra
+$env:OPENSSL_CONF = "C:\ProgramData\i-doit\apache-2.4\conf\openssl.cnf"
+C:\ProgramData\i-doit\apache-2.4\bin\openssl.exe req -x509 -sha256 -nodes -days 365 -newkey rsa:4096 -keyout private.key -out certificate.crt -subj "/CN=$env:COMPUTERNAME"
+```
+
+### Konfigurationsschritte
+
+#### 1. **Erstellen der ssl.conf-Datei**
+
+Navigiere zu deinem i-doit-Ordner unter `ProgramData\i-doit\apache-2.4\conf\extra\` und erstelle die Datei `ssl.conf`. Die Datei sollte folgenden Inhalt haben:
+<!-- cSpell:disable -->
+```conf
+<VirtualHost *:443>
+   DocumentRoot "${SRVROOT}/htdocs"
+   ServerName localhost
+
+   SSLEngine on
+   SSLCertificateFile "Pfad/Zum/Zertifikat.crt"
+   SSLCertificateKeyFile "Pfad/Zum/Privatekey.key"
+
+   <Directory "${SRVROOT}/htdocs">
+       Options Indexes FollowSymLinks MultiViews
+       AllowOverride all
+       Require all granted
+       AddHandler application/x-httpd-php .php
+   </Directory>
+
+   ErrorLog "logs/ssl_error.log"
+   LogLevel warn
+
+   <IfModule log_config_module>
+       LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
+       LogFormat "%h %l %u %t \"%r\" %>s %b" common
+       <IfModule logio_module>
+           LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" %I %O" combinedio
+       </IfModule>
+       CustomLog "logs/ssl_access.log" common
+   </IfModule>
+</VirtualHost>
+```
+<!-- cSpell:enable -->
+**Hinweis:** Passe die Pfade und Konfigurationseinstellungen entsprechend deiner eigenen Umgebung an und stelle sicher, dass dein Zertifikat und privater Schlüssel in den angegebenen Pfaden vorhanden sind.
+
+#### 2. **Anpassungen in der httpd.conf**
+
+Bearbeite die `httpd.conf`-Datei, die sich unter `i-doit\apache-2.4\conf\` befindet:
+
+-   Füge `Listen 443` hinzu und kommentiere `Listen 8080` aus. Dadurch wird i-doit nicht mehr über http erreichbar sein.
+-   Füge außerdem folgende Zeilen ein: `LoadModule ssl_module modules/mod_ssl.so` und `Include conf/extra/ssl.conf`
+-   Ändere `ServerName localhost:8080` in `ServerName localhost:443`.
+-   Lass `PHPIniDir "C:/ProgramData/i-doit/php"` unverändert. Zeigt `PHPIniDir` auf einen anderen Ordner, lädt PHP keine `php.ini` und i-doit startet nicht.
+
+Die Datei sollte dann so aussehen, wenn vorher nichts geändert wurde:
+<!-- cSpell:disable -->
+```conf
+Define SRVROOT "C:/ProgramData/i-doit/apache-2.4"
+
+ServerRoot "${SRVROOT}"
+#Listen 8080
+Listen 443
+
+LoadModule actions_module modules/mod_actions.so
+LoadModule alias_module modules/mod_alias.so
+LoadModule allowmethods_module modules/mod_allowmethods.so
+LoadModule asis_module modules/mod_asis.so
+LoadModule auth_basic_module modules/mod_auth_basic.so
+LoadModule authn_core_module modules/mod_authn_core.so
+LoadModule authn_file_module modules/mod_authn_file.so
+LoadModule authz_core_module modules/mod_authz_core.so
+LoadModule authz_groupfile_module modules/mod_authz_groupfile.so
+LoadModule authz_host_module modules/mod_authz_host.so
+LoadModule authz_user_module modules/mod_authz_user.so
+LoadModule autoindex_module modules/mod_autoindex.so
+LoadModule cgi_module modules/mod_cgi.so
+LoadModule dir_module modules/mod_dir.so
+LoadModule env_module modules/mod_env.so
+LoadModule headers_module modules/mod_headers.so
+LoadModule include_module modules/mod_include.so
+LoadModule isapi_module modules/mod_isapi.so
+LoadModule ldap_module modules/mod_ldap.so
+LoadModule log_config_module modules/mod_log_config.so
+LoadModule mime_module modules/mod_mime.so
+LoadModule mime_magic_module modules/mod_mime_magic.so
+LoadModule negotiation_module modules/mod_negotiation.so
+LoadModule rewrite_module modules/mod_rewrite.so
+LoadModule setenvif_module modules/mod_setenvif.so
+LoadModule php_module "C:/ProgramData/i-doit/php/php8apache2_4.dll"
+LoadModule ssl_module modules/mod_ssl.so
+Include conf/extra/ssl.conf
+
+PHPIniDir "C:/ProgramData/i-doit/php"
+
+<IfModule unixd_module>
+    User daemon
+    Group daemon
+</IfModule>
+
+ServerAdmin admin@example.com
+
+ServerName localhost:443
+<Directory />
+    AllowOverride all
+    Require all granted
+</Directory>
+
+DocumentRoot "${SRVROOT}/htdocs"
+<Directory "${SRVROOT}/htdocs">
+    Options Indexes FollowSymLinks MultiViews
+    AllowOverride all
+    Require all granted
+    AddHandler application/x-httpd-php .php
+</Directory>
+
+<IfModule dir_module>
+    DirectoryIndex index.html index.php
+</IfModule>
+
+<Files ".ht*">
+    Require all granted
+</Files>
+
+ErrorLog "logs/error.log"
+
+LogLevel warn
+
+<IfModule log_config_module>
+    LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
+    LogFormat "%h %l %u %t \"%r\" %>s %b" common
+    <IfModule logio_module>
+      LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" %I %O" combinedio
+    </IfModule>
+    CustomLog "logs/access.log" common
+<IfModule alias_module>
+    ScriptAlias /cgi-bin/ "${SRVROOT}/cgi-bin/"
+</IfModule>
+
+<IfModule cgid_module>
+</IfModule>
+
+<Directory "${SRVROOT}/cgi-bin">
+    AllowOverride all
+    Options None
+    Require all granted
+</Directory>
+
+<IfModule headers_module>
+    RequestHeader unset Proxy early
+</IfModule>
+
+<IfModule mime_module>
+    TypesConfig conf/mime.types
+    AddType application/x-compress .Z
+    AddType application/x-gzip .gz .tgz
+</IfModule>
+
+<IfModule proxy_html_module>
+    Include conf/extra/proxy-html.conf
+</IfModule>
+
+<IfModule ssl_module>
+    SSLRandomSeed startup builtin
+    SSLRandomSeed connect builtin
+</IfModule>
+```
+<!-- cSpell:enable -->
+#### 3. **Apache-Webserver neustarten**
+
+-   Drücke ++windows+r++ , gib `cmd` ein und drücke Enter.
+-   Oder gib `cmd` in der Windows-Suchleiste ein, um die Eingabeaufforderung zu öffnen
+
+Gib den folgenden Befehl ein, um den Apache-Webserver neu zu starten:
+
+```batch
+C:\ProgramData\i-doit\apache-2.4\bin\httpd.exe -k restart
+```
+
+Der Apache-Webserver wurde nun neu gestartet. Prüfe die Installation und ob i-doit über HTTPS erreichbar ist (`https://<i-doit-host>/`).
+
+Im Fehlerprotokoll `logs\error.log` erscheinen danach die Warnungen `AH01873` (Session Cache) und `AH01916` (HTTP auf Port 443). Beide beeinträchtigen den Betrieb nicht.
+
+Das wars! Deine i-doit-Installation ist jetzt für SSL auf Windows konfiguriert.
+
+### Deinstallation
+
+Um i-doit wieder zu deinstallieren muss zuerst der Apache2 service gestoppt werden. Dafür geben wir in der Eingabeaufforderung folgenden Befehl ein:
+
+```batch
+C:\ProgramData\i-doit\apache-2.4\bin\httpd.exe -k stop
+```
+
+Ist der Apache2 Service gestoppt, kann Apache2 deinstalliert werden:
+
+```batch
+C:\ProgramData\i-doit\apache-2.4\bin\httpd.exe -k uninstall
+```
+
+Anschließend wird MariaDB deinstalliert indem wir unter **Programme hinzufügen oder entfernen** MariaDB entfernen.
+
+[![Deinstallieren MariaDB](../../../assets/images/de/installation/microsoft-windows/i-doit-windows/3-idw.png)](../../../assets/images/de/installation/microsoft-windows/i-doit-windows/3-idw.png)
+
+Jetzt muss noch der i-doit Ordner gelöscht werden und der PHP `PATH` muss aus den Umgebungsvariablen entfernt werden:
+
+[![Deinstallieren PHP](../../../assets/images/de/installation/microsoft-windows/i-doit-windows/4-idw.png)](../../../assets/images/de/installation/microsoft-windows/i-doit-windows/4-idw.png)
+
+## i-doit Discovery für Windows Server installieren
+
+In diesem Abschnitt wird beschrieben, wie man i-doit Discovery installiert. Das i-doit Discovery Paket finden Sie auf unserer [Website](https://www.i-doit.com/en/i-doit-discovery/).
+
+Der Inhalt des Pakets ist wie folgt:
+
+-   i-doit Discovery Installer.exe
+-   idoit-XX.zip
+-   src.zip
+-   windowsdesktop-runtime-6.0.14-win-x64.exe
+
+Das Installationspaket enthält immer die neueste [i-doit Version](../../../versionshistorie/index.md) sowie JDisc 5.0 und mehrere JDisc Add-ons. Auch der Ordner `src.zip` ermöglicht eine Installation ohne Internetverbindung. Da der i-doit-Windows-Installer **windowsdesktop-runtime-6.0.14** benötigt, wird dieser auch mitgeliefert, falls keine Internetverbindung vorhanden ist.
+
+### Installation
+
+Nach dem Ausführen des `i-doit Discovery Installer.exe` sehen Sie die folgende GUI:
+
+[![GUI Discovery](../../../assets/images/de/installation/microsoft-windows/i-doit-windows/5-idw.png)](../../../assets/images/de/installation/microsoft-windows/i-doit-windows/5-idw.png)
+
+Nachdem Sie auf Installieren geklickt haben, werden alle erforderlichen Elemente im Hintergrund installiert.
+
+Es werden die folgenden Inhalte installiert:
+
+-   **Apache 2.4**
+-   **PHP 8.2**
+-   **MariaDB 10.6**
+-   **i-doit**
+-   **JDisc 5.X**
+-   **JDisc JDisc Discovery Dependency Mapping 5.X(Add-on)**
+-   **JDisc Discovery Device History 5.X(Add-on)**
+-   **JDisc Discovery Measurement 5.X(Add-on)**
+-   **JDisc Discovery Security 5.X(Add-on)**
+-   **JDisc Discovery WEB UI 5.X(Add-on)**
+
+!!! info "Wenn die Firewall aktiviert ist, werden Sie gefragt ob Sie der Software vertrauen"
+
+Nachdem die Installation erfolgreich war, erscheint eine kleines Fenster mit folgender Nachricht: **"i-doit Discovery wurde erfolgreich installiert."**. Nachdem Sie **OK** geklickt haben öffnet sich ein neues Fenster in Ihrem Browser in welchem die `localhost` URL automatisch geöffnet wird. Jetzt können Sie i-doit Discovery im vollen Umfang benutzen.
+
+!!! info "Wenn während der Installation ein Fehler auftreten sollte, wird im i-doit Discovery Ordner eine Log Datei erstellt."
+
+### Konfiguration
+
+Die Konfigurationsdateien von PHP, MariaDB oder Apache finden Sie in den folgenden Verzeichnissen:
+
+-   **PHP:**
+    `C:\ProgramData\i-doit-discovery\php\php.ini`
+
+-   **MariaDB:**
+    `C:\ProgramData\MariaDB\data\my.ini`
+
+-   **Apache:**
+    `C:\ProgramData\i-doit-discovery\apache-2.4\conf\httpd.conf`
+
+## Credentials
+
+Hier findest du die Login Daten für den i-doit Windows Installer:
+<!-- cSpell:disable -->
+| Plattform                  | Benutzername                    | Password       |
+| -------------------------- | ------------------------------- | -------------- |
+| MariaDB root               | root                            | idoit          |
+| MariaDB i-doit             | idoit                           | idoit          |
+| i-doit Admin-Center        | admin                           | admin          |
+| JDisc Datenbank            | postgres                        | idoitdiscovery |
+| JDisc Datenbank (ReadOnly) | postgresro                      | idoit          |
+| Installations Verzeichnis  | C:\ProgramData\i-doit-discovery | -              |
+<!-- cSpell:enable -->
+Die i-doit Login Daten finden Sie [hier](../../../grundlagen/erstanmeldung.md).
+
+### Deinstallation
+
+Um i-doit wieder zu deinstallieren muss zuerst der Apache2 service gestoppt werden. Dafür geben wir in der Eingabeaufforderung folgenden Befehl ein:
+
+```batch
+C:\ProgramData\i-doit-Discovery\apache-2.4\bin\httpd.exe -k stop
+```
+
+Ist der Apache2 Service gestoppt, kann Apache2 deinstalliert werden:
+
+```batch
+C:\ProgramData\i-doit-Discovery\apache-2.4\bin\httpd.exe -k uninstall
+```
+
+Anschließend wird MariaDB deinstalliert indem wir unter **Programme hinzufügen oder entfernen** MariaDB entfernen.
+
+[![Deinstallieren MariaDB](../../../assets/images/de/installation/microsoft-windows/i-doit-windows/3-idw.png)](../../../assets/images/de/installation/microsoft-windows/i-doit-windows/3-idw.png)
+
+Zusätzlich müssen JDisc und seine Add-ons unter **Programme hinzufügen oder entfernen** entfernt werden.
+
+!!! warning "Die JDisc Add-ons müssen vor JDisc deinstalliert werden!"
+
+[![Uninstall JDisc](../../../assets/images/de/installation/microsoft-windows/i-doit-windows/6-idw.png)](../../../assets/images/de/installation/microsoft-windows/i-doit-windows/6-idw.png)
+
+Jetzt muss noch der i-doit Ordner gelöscht werden und der PHP `PATH` muss aus den Umgebungsvariablen entfernt werden:
+
+[![Deinstallieren PHP](../../../assets/images/de/installation/microsoft-windows/i-doit-windows/4-idw.png)](../../../assets/images/de/installation/microsoft-windows/i-doit-windows/4-idw.png)
+
+## FAQ
+
+### HTTPS-Verbindungen aus i-doit schlagen fehl (cURL error 77)
+
+i-doit ruft für einige Funktionen Adressen über HTTPS auf, zum Beispiel für die Update-Prüfung. PHP prüft dabei die Zertifikate gegen die Datei, die in der `php.ini` unter `curl.cainfo` und `openssl.cafile` eingetragen ist. Fehlt diese Datei, schlagen die Aufrufe mit einer Meldung wie dieser fehl:
+
+```text
+cURL error 77: error adding trust anchors from file: C:/ProgramData/i-doit/php/extras/ssl/cacert.pem
+```
+
+So legst du die Datei nach oder ersetzt ein veraltetes Zertifikats-Bundle. Öffne die PowerShell als Administrator:
+
+**Schritt 1:** Prüfe, welche Datei die `php.ini` erwartet:
+
+```powershell
+Select-String C:\ProgramData\i-doit\php\php.ini -Pattern '^\s*(curl\.cainfo|openssl\.cafile)'
+```
+
+Gibt der Befehl nichts aus, trage am Ende der `php.ini` diese beiden Zeilen ein:
+
+```ini
+curl.cainfo = "C:/ProgramData/i-doit/php/extras/ssl/cacert.pem"
+openssl.cafile = "C:/ProgramData/i-doit/php/extras/ssl/cacert.pem"
+```
+
+**Schritt 2:** Lade das aktuelle CA-Bundle von curl.se herunter, lege es an diesem Ort ab und prüfe die Prüfsumme. Passe `$ziel` an, wenn die `php.ini` einen anderen Pfad nennt:
+
+```powershell
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+$ziel = 'C:\ProgramData\i-doit\php\extras\ssl\cacert.pem'
+New-Item -ItemType Directory -Force (Split-Path $ziel) | Out-Null
+Invoke-WebRequest https://curl.se/ca/cacert.pem -OutFile $ziel -UseBasicParsing
+Invoke-WebRequest https://curl.se/ca/cacert.pem.sha256 -OutFile "$ziel.sha256" -UseBasicParsing
+(Get-Content "$ziel.sha256").Split(' ')[0] -eq (Get-FileHash $ziel -Algorithm SHA256).Hash
+Remove-Item "$ziel.sha256"
+```
+
+Die letzte Prüfung muss `True` ausgeben.
+
+**Schritt 3:** Starte den Webserver neu:
+
+```powershell
+Restart-Service Apache2.4
+```
+
+Zum Testen öffnest du in i-doit **Verwaltung → [Mandantenname] Verwaltung**, klappst **System Config Check** auf und klickst bei **Updates** auf **Check for update**. Statt der Fehlermeldung erscheint dann die neueste verfügbare Version oder der Hinweis, dass i-doit aktuell ist.
+
+### Verbessertes Laden der Website
+
+Unter Windows braucht i-doit im Browser länger zum Laden. Dies liegt in der Regel an der Konfiguration des Virenscanners unter Windows, für die folgenden i-doit Verzeichnisse solltest du hier eine Ausnahme machen:
+
+-   [Pfad](#konfiguration)`\htdocs\admin`
+-   [Pfad](#konfiguration)`\htdocs\images`
+-   [Pfad](#konfiguration)`\htdocs\log`
+-   [Pfad](#konfiguration)`\htdocs\src`

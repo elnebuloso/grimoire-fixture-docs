@@ -1,0 +1,63 @@
+---
+description: Die PDF Rechnung im Anhang speichern und laden.
+forge: github.com
+kind: howto
+name: account_invoice_prepare
+partner: Mint System
+prev: ./invoicing
+repo: Mint-System/Odoo-Apps-Account-Invoicing
+title: Account Invoice Prepare
+versions:
+  - '18.0'
+  - '16.0'
+---
+
+
+# Account Invoice Prepare
+
+![icon_oms_box](attachments/icons_odoo_mint_system.png)
+
+{{ $frontmatter.description }}
+
+Technischer Name: {{ $frontmatter.name }}\
+Repository: <a v-bind:href="`https://${$frontmatter.forge}/${$frontmatter.repo}/tree/${$frontmatter.versions[0]}/${$frontmatter.name}`">https://{{ $frontmatter.forge }}/{{ $frontmatter.repo }}/tree/{{ $frontmatter.versions[0] }}/{{ $frontmatter.name }}</a>
+
+## Verwendung
+
+### PDF-Rechnung vorbereiten
+
+Navigieren Sie nach _Buchhaltung > Kunden > Ausgangsrechnungen_ und markieren Sie eine Rechnung. Wählen Sie _Aktion > PDF-Rechnung vorbereiten_.
+
+## Geplante Aktionen
+
+### Rechnungsstellung: PDF-Dateien erneuern
+
+Navigieren Sie nach _Einstellungen > Technisch > Automatisierungsregeln_ und erstellen Sie einen neuen Eintrag:
+
+Name der Aktion: `Rechnungsstellung: PDF-Dateien erneuern`\
+Modell: `ir.actions.server`\
+Ausführen alle: `1` Tage\
+Nächstes Ausführungsdatum: `DD.MM.YYYY 06:00:00`\
+Anzahl der Anrufe: `-1`\
+Typ: `Code ausführen`
+
+Kopieren Sie die folgenden Zeilen in das Feld _Python Code_:
+
+```python
+invoices = env['account.move'].search([
+  ('attachment_ids','!=',False),
+  ('move_type','=','out_invoice'),
+  ('print_date','!=',False),
+  ('state','=','posted'),
+  ('payment_state','not in',['draft', 'paid']),
+])
+
+# raise UserError(invoices)
+
+for invoice in invoices:
+    if not invoice.print_date or (invoice.write_date > invoice.print_date):
+        log("Unlink and recreate invoice pdf file for: " + invoice.name)
+        invoice.message_post(body="Unlink and recreate invoice pdf file.")
+        invoice.attachment_ids.unlink()
+        invoice.action_prepare_pdf()
+```

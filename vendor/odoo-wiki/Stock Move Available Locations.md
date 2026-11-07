@@ -1,0 +1,42 @@
+---
+description: Nur Lagerorte mit Besand in Auswahl anzeigen.
+forge: github.com
+kind: howto
+name: stock_move_available_locations
+partner: Mint System
+prev: ./stock
+repo: Mint-System/Odoo-Apps-Stock-Logistics-Workflow
+title: Stock Move Available Locations
+versions:
+  - '17.0'
+  - '16.0'
+  - '14.0'
+---
+
+
+# Stock Move Available Locations
+
+![icon_oms_box](attachments/icons_odoo_mint_system.png)
+
+{{ $frontmatter.description }}
+
+Technischer Name: {{ $frontmatter.name }}\
+Repository: <a v-bind:href="`https://${$frontmatter.forge}/${$frontmatter.repo}/tree/${$frontmatter.versions[0]}/${$frontmatter.name}`">https://{{ $frontmatter.forge }}/{{ $frontmatter.repo }}/tree/{{ $frontmatter.versions[0] }}/{{ $frontmatter.name }}</a>
+
+## Verwendung
+
+### Lagerort immer anzeigen
+
+Zeigen Sie _Lager > Konfiguration > Lageorte_ an und wählen Sie ein Lageort aus, der immer in Transfer angezeigt werden soll. Markieren Sie das Feld _Lageort für Transfer?_.
+
+### Lagerorte nach Verfügbarkeit filtern
+
+Mit dieser Erweiterung wird die Auswahl der Lageort anhand des Produktbestands eingeschränkt. Lagerorte mit einem postivien Bestand oder dem Attribut _Lageort für Transfer?_ werden angezeigt.
+
+Auf Operationen:
+
+![Stock Move Available Locations Operationen](attachments/Stock%20Move%20Available%20Locations%20Operationen.gif)
+
+Auf detaillierten Operationen:
+
+![Stock Move Available Locations](attachments/Stock%20Move%20Available%20Locations.gif)

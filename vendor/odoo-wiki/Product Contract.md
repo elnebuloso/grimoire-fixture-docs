@@ -1,0 +1,94 @@
+---
+description: Verbindet Produkte mit Kundenverträgen.
+forge: github.com
+kind: howto
+name: product_contract
+partner: OCA
+prev: ./contract
+repo: OCA/contract
+title: Product Contract
+versions:
+  - '18.0'
+  - '17.0'
+  - '16.0'
+  - '15.0'
+  - '14.0'
+---
+
+
+# Product Contract
+
+![icon_oms_box](attachments/icons_odoo_mint_system.png)
+
+{{ $frontmatter.description }}
+
+Technischer Name: {{ $frontmatter.name }}\
+Repository: <a v-bind:href="`https://${$frontmatter.forge}/${$frontmatter.repo}/tree/${$frontmatter.versions[0]}/${$frontmatter.name}`">https://{{ $frontmatter.forge }}/{{ $frontmatter.repo }}/tree/{{ $frontmatter.versions[0] }}/{{ $frontmatter.name }}</a>
+
+## Beschreibung
+
+Mit diesem Modul kann ein Produkt als Vertragsprodukt gekennzeichnet werden. Wird ein Verkaufsautrag für ein solches Produkt angelegt, wird gleichzeitig ein Kundenvertrag zu dem Produkt angelegt. Über Smart Buttons kann zwischen Produkt und zugehörigem Vertrag hin- und hergewechselt werden.
+
+## Verwendung
+
+### Einstellung für Produkt
+
+1. Man öffnet ein vorhandenes Produkt oder erstellt ein neues.
+2. Durch Anklicken der Checkbox _Ist ein Vertrag_ wird das Produkt als Vertragsprodukt ausgezeichnet.
+3. Im Reiter Vertrag (oder direkt beim Anlegen des Produkts) können weitere Vertragsdetails wie Startdatum und Auto-Erneuerung konfiguriert werden.
+
+!!! warning
+    Das Modul erlaubt nur, Produkte vom Typ _Dienstleistung_ als Vertragsprodukt auszuzeichnen.
+
+
+### Verkaufsauftrag
+
+Wird ein neuer Verkaufsauftrag mit einem Vertragsprodukt angelegt und bestätigt, wird gleichzeitig ein Kundenvertrag generiert. Die Details des Kundenvertrags können auf Produktebene oder auf Vertragsebene geändert werden.
+
+Enthält ein Verkaufsautrag mehrere Vertragsprodukte, wird ein gemeinsamer Kundenvertrag angelegt.
+
+!!! tip
+    Wird nachträglich einem Verkaufsauftrag mit Kundenvertrag ein weiteres Vertragsprodukt hinzugefügt, wird ein neuer Kundenvertrag angelegt.
+
+
+Per Smart Button kann man von einem Verkaufsauftrag zum zugehörigen Kundenvertrag springen und umgekehrt.
+
+### Rechnungsstellung
+
+Die Rechnung zu einem Verkaufsauftrag enthält nur die Nicht-Vertragsprodukte.
+
+## Aktionen
+
+### Wiederkehrendes Produkt in Vertrag umwandeln
+
+Navigieren Sie nach _Einstellungen > Technisch > Serveraktionen_ und erstellen Sie einen neuen Eintrag:
+
+Name der Aktion: `Wiederkehrendes Produkt in Vertrag umwandeln`\
+Modell: `product.template`\
+Typ: `Code ausführen`
+
+Kopieren Sie die folgenden Zeilen in das Feld _Python Code_:
+
+```python
+mapping = {
+	"1M": "monthly",
+	"1J": "yearly",
+	"1Q": "quarterly",
+	"3J": "yearly",
+	"5J": "yearly",
+	"2J": "yearly",
+	"10J": "yearly",
+	"7J": "yearly",
+	"4J": "yearly",
+}
+for record in records:
+  record.write({
+	  'recurring_invoice': False,
+	  'is_contract': True,
+	  'is_auto_renew': True,
+	  'auto_renew_interval': int(record.subscription_template_id.code.replace("J", "").replace("Q", "").replace("M", "")),
+	  'recurring_rule_type': mapping[record.subscription_template_id.code]
+	})
+```
+
+Die Aktion mit dem Knopf _Kontextuelle Aktion erstellen_ bestätigen und dann speichern.

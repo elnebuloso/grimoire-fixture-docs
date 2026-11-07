@@ -1,0 +1,22 @@
+---
+title: Mail Manual Routing
+description: Erlaubt Zuordnung von empfangenen E-Mails.
+kind: howto
+partner: Mint System
+prev: ./base
+---
+
+# Mail Manual Routing
+
+![](attachments/odoo_icon_mail_manual_routing.png)
+
+{{ $frontmatter.description }}
+
+Technischer Name: `mail_manual_routing`\
+Odoo App Store: <https://apps.odoo.com/apps/modules/14.0/mail_manual_routing/>
+
+## Verwendung
+
+### Nicht-verknüpfte E-Mails anzeigen
+
+Klicken Sie auf die App _Lost Messages_ und öffnen Sie einen Eintrag.

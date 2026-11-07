@@ -1,0 +1,33 @@
+---
+title: Erweiterte Einstellungen
+description: "Die erweiterten Einstellungen ermöglichen dir, das Verhalten der Objekt-Listen an deine Anforderungen anzupassen -- von der Anzahl der Einträge pro..."
+icon:
+status:
+lang: de
+---
+
+# Erweiterte Einstellungen
+
+Die erweiterten Einstellungen ermöglichen dir, das Verhalten der [Objekt-Listen](index.md) an deine Anforderungen anzupassen -- von der Anzahl der Einträge pro Seite bis hin zu Lösch-Optionen.
+
+[![Erweiterte Einstellungen](../../assets/images/de/grundlagen/objekt-liste/erweiterte-einstellungen.png)](../../assets/images/de/grundlagen/objekt-liste/erweiterte-einstellungen.png)
+
+## Anzahl der Objekte pro Seite anpassen
+
+Du legst die Anzahl der dargestellten [Objekte](../struktur-it-dokumentation.md) pro Seite unter **Verwaltung → Benutzereinstellungen → Benutzeroberfläche** fest. Da es sich um eine benutzerspezifische Einstellung handelt, kann jeder Benutzer seinen eigenen Wert wählen. Beachte: Ein sehr hoher Wert kann die Performance verringern.
+
+## Maximallänge von Objekttiteln
+
+Abhängig davon, wie viele Attribute beziehungsweise Spalten in einer Liste dargestellt werden, kann es sinnvoll sein, die maximale Länge des Objekt-Titels zu begrenzen. Sollte ein [Objekt-Titel](../eindeutige-referenzierungen.md) diese Länge überschreiten, wird er ab der festgelegten Länge mit drei Punkten (...) abgekürzt. Die Maximallänge kann unter **Verwaltung → [Mandanten-Name] Verwaltung → Einstellungen für [Mandanten-Name] → Maximallänge von Zeichenfolgen → Objekttitel in Listen** angepasst werden. Hier ist im Textfeld die gewünschte maximale Zeichenlänge als positive Ganzzahl, ab der die Kürzung erfolgen soll, einzutragen.
+
+## Schaltfläche Quickpurge (de)aktivieren
+
+Die [Aktionsleiste in Objekt-Listen](aktionsleiste.md) kann um den Button [**Quickpurge**](../lebens-und-dokumentationszyklus.md) erweitert werden. Unter **Verwaltung → [Mandanten-Name] Verwaltung → Einstellungen für [Mandanten-Name] → CMDB → Quickpurge-Button aktivieren** wird im Drop-Down-Menü der Wert  **ja** ausgewählt, um den Button zu zeigen, beziehungsweise **nein**, um den Button nicht zu zeigen.
+
+## Drag'n'Drop (de-)aktivieren
+
+Per Drag'n'Drop lässt sich ein Objekt einem anderen [Objekttypen](../struktur-it-dokumentation.md) zuordnen. Unter **Verwaltung → [Mandanten-Name] Verwaltung → Einstellungen für [Mandanten-Name] → Oberflächendarstellung → Drag 'n' Drop von Objekten**  kann die Funktion durch die Auswahl des Werts **nein** deaktiviert beziehungsweise durch **ja** aktiviert werden.
+
+## Templates in Objekt-Listen anzeigen
+
+Templates werden in i-doit nicht in den Objekt-Listen dargestellt. Doch dieser Zustand kann neben Normal, Archiviert und Gelöscht als Template angezeigt werden. Dies ist unter **Verwaltung → [Mandanten-Name] Verwaltung → Einstellungen für [Mandanten-Name] → Templates → Template Filter in den Objektlisten anzeigen** möglich.

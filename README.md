@@ -114,8 +114,8 @@ Dead links:
 
 ## `vendor/`: documentation that is not ours
 
-Copies of four public documentations at a fixed commit, for grimoire's benchmark: the same input on
-every run, whatever happens upstream. Each folder has the upstream license and a `VENDOR.md` with
+Copies of eight public documentations, four in English and four in German, at a fixed commit, for
+grimoire's benchmark: the same input on every run, whatever happens upstream. Each folder has the upstream license and a `VENDOR.md` with
 the upstream repository, the commit, what was copied and what was changed.
 
 | Folder | Source path for grimoire | Pages | Generator |
@@ -124,6 +124,10 @@ the upstream repository, the commit, what was copied and what was changed.
 | `vendor/mkdocs-material` | `vendor/mkdocs-material/docs` | 85 | MkDocs |
 | `vendor/fastapi` | `vendor/fastapi/docs/en/docs` | 156 | MkDocs |
 | `vendor/zensical` | `vendor/zensical/docs` | 57 | Zensical |
+| `vendor/kubernetes` | `vendor/kubernetes/content/de` | 147 | Hugo |
+| `vendor/fastapi` | `vendor/fastapi/docs/de/docs` | 125 | MkDocs |
+| `vendor/i-doit` | `vendor/i-doit/docs/de` | 725 | MkDocs |
+| `vendor/odoo-wiki` | `vendor/odoo-wiki` | 930 | Zensical |
 
 The folders are updated only on purpose, as a whole, with a new commit in their `VENDOR.md`; the
 benchmark's baseline changes with them. The sources of the agent environment above do not read

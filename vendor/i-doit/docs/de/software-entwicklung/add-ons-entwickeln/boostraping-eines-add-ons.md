@@ -1,0 +1,99 @@
+---
+title: "Bootstrapping eines Add-ons (init.php)"
+description: "In der ersten Ebene des Add-on-Verzeichnisses muss eine init.php\\-Datei liegen."
+lang: de
+---
+# Bootstrapping eines Add-ons (init.php)
+
+In der ersten Ebene des Add-on-Verzeichnisses muss eine init.php\-Datei liegen. Diese wird vom i-doit-System automatisch inkludiert, um das Add-on im Kern zu registrieren. Vom Entwickler sollte die init.php dazu genutzt werden, um Add-on-spezifische Vorbereitungen zu treffen. Dazu gehört unter anderem das Definieren von Konstanten oder das Registrieren der Autoloader und Routen. Ebenso können hier Callbacks via "Signal-Slot"-Komponente registriert werden.
+
+Weiterhin können innerhalb der init.php\-Report-Views und Dashboard-Widgets registriert werden, damit i-doit an den entsprechenden Stellen darauf zugreifen kann.
+
+Die init.php muss so wenig Logik wie möglich mitliefern, damit die Performance nicht darunter leidet. Die init.php\-Dateien aller Add-ons werden bei jedem Request durchlaufen!
+
+## Prüfen, ob das Add-on aktiv ist
+
+Die erste Codeanweisung innerhalb der init.php muss prüfen, ob das Add-on aktiv ist. Nur dann darf weiterer Code ausgeführt werden!
+
+Der nötige Code dazu sieht folgendermaßen aus:
+
+```php
+if (isys_module_manager::instance()->is_active('example'))
+{
+    // Hier werden nun Konstanten, Autoloader und Events definiert bzw. registriert.
+}
+```
+
+**Alle weiteren Anweisungen dürfen lediglich innerhalb dieser Überprüfung stattfinden!**
+
+## Autoloader PSR-4 und Legacy
+
+### PSR-4
+
+Für PHP-Klassen, die nach PSR-4 erstellt werden, bietet i-doit eine einfache Möglichkeit, den Add-on-Namespace in den Autoloader zu implementieren:
+
+```php
+// Adding the PSR-4 autoloader.
+\idoit\Psr4AutoloaderClass::factory()->addNamespace('idoit\Module\Example', __DIR__ . '/src/');
+```
+
+### Legacy Code
+
+Für PHP-Klassen im Legacy-Format (wie z.B. die Rechtesystem- oder Kategorie-Klassen) muss der Classmap-Autoloader verwendet werden.
+Die Classmap kann über einen internen Command erstellt werden, der zur Verfügung steht, wenn man das i-doit-Repository geklont hat:
+
+```shell
+$ php console.php internal:generate-classmap --add-on=<identifier> --skip-psr4
+```
+
+Durch den Identifier weiß der Command, in welches Verzeichnis die Classmap geschrieben werden soll. Das `--skip-psr4`-Flag
+kann optional gesetzt werden, um PSR-4-Klassen zu überspringen. Das Ergebnis des Commands sollte eine Datei sein, die im Add-on-Verzeichnis liegt: `src/classes/modules/<identifier>/classmap.php`.
+
+Anschließend kann diese Datei folgendermaßen eingebunden werden:
+
+```php
+// Add classmap for legacy code.
+\idoit\Component\Autoloader::appendClassmap(require_once __DIR__ . '/classmap.php');
+```
+
+## Eigene Services registrieren
+
+i-doit verfügt über einen „Dependency-Injection-Container“, der mit eigenen Services ergänzt werden kann. 
+Eigene Services zu hinterlegen ist denkbar einfach: Eure `isys_module_*`-Klasse muss dazu lediglich das 
+`idoit\AddOn\ExtensionProviderInterface`-Interface und die notwendige Methode `getContainerExtension` implementieren.
+
+Diese Methode muss eine Instanz einer "Extension"-Klasse zurückliefern. Diese verfügt üblicherweise nur über wenige Zeilen:
+
+```php
+<?php
+
+namespace idoit\Module\Example;
+
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Extension\Extension;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+
+class ExampleExtension extends Extension
+{
+    public function load(array $configs, ContainerBuilder$container)
+    {
+        (new YamlFileLoader($container, new FileLocator(dirname(__DIR__))))->load('config/services.yaml');
+    }
+}
+```
+
+Die Klasse referenziert zeigt auf eure `services.yaml` Datei, die eure Servicedefinition enthält. 
+Das kann unter anderem dafür genutzt werden, "getaggte Services" (zum Beispiel API-Endpunkte) zu erstellen. 
+Das kann wie folgt aussehen:
+
+```yaml
+services:
+    example.endpoint.a:
+        class: idoit\Module\Example\ApiEndpoint\Hello
+        tags: [ 'api.endpoint' ]
+```
+
+## Einstellungen für [Mandanten-Name] erweitern
+
+Die dargestellten Einstellungen für [Mandanten-Name] unter **Verwaltung → [Mandanten-Name] Verwaltung → Einstellungen für [Mandanten-Name]** können mittels Add-on erweitert werden. Weitere Informationen hierzu befinden sich im Artikel [Systemeinstellungen erweitern](systemeinstellungen-erweitern.md).

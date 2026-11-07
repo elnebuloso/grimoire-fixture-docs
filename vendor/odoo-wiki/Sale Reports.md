@@ -1,0 +1,42 @@
+---
+title: Verkauf Berichte
+description: Verkaufsdaten immer aktuell.
+kind: howto
+section: true
+prev: ./sale
+partner: Mint System
+---
+
+# Verkauf Berichte
+
+![icons_odoo_sale](attachments/icons_odoo_sale.png)
+
+{{ $frontmatter.description }}
+
+## Auswertung
+
+### Verkaufsaufträge in Pivot auswerten
+
+Zeigen Sie die Pivot-Ansicht unter _Verkauf > Berichtswesen > Verkauf_ an. Angenommen Sie wollen die Verkaufsdaten nach diesen Kriterien filtern:
+
+- Gelieferte Menge in kg
+- Pro Woche (X-Achse)
+- Pro Produkt und Branche (Y-Achse)
+
+Wählen Sie ganz einfach die entsprechenden Felder:
+
+![](attachments/Verkauf%20Berichte%20Verkaufszeilen.png)
+
+### Auftragspositionen mit dynamischen Filter auswerten
+
+Wenn Sie [Auftragspositionen anzeigen](Sale.md#Auftragspositionen%20anzeigen) können Sie in der Pivot-Ansicht einen [Filter mit dynamischen Datum erstellen](Development%20Views.md#Filter%20mit%20dynamischen%20Datum%20erstellen). Verwenden Sie diese Parameter zur Konfiguration des Filters für die Auftragspositionen:
+
+- **Domain**:
+
+```python
+[
+"&",
+["x_commitment_date", ">=", (datetime.datetime.now() - datetime.timedelta(weeks=2)).strftime('%Y-%m-%d')],
+["x_commitment_date", "<=", (datetime.datetime.now() + datetime.timedelta(weeks=2)).strftime('%Y-%m-%d')]
+]
+```
